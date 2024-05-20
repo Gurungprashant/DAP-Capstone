@@ -8,6 +8,9 @@ S "1" G "7" ("Section 1 Group 7")
 - Anjila Gurung
 - Dipesh Chaudhary
 
+## Data Source
+Multi-user input. Data comes from the app’s user and other registered users.
+
 ## Project Name and Description
 "DAP" is a revolutionary fashion app designed to help users discover and save their favorite fashion items effortlessly. With DAP, users can explore a vast array of fashion categories, ranging from casual wear to high-end couture. The app allows users to filter items by price, style, brand, and other preferences, making it easy to find exactly what they are looking for. Additionally, users can create a personalized wishlist to keep track of their favorite items, ensuring they never miss out on a coveted piece. Whether you're searching for the latest trends or timeless classics, DAP provides a seamless and enjoyable shopping experience tailored to your unique fashion tastes.
 
