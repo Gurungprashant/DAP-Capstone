@@ -15,16 +15,16 @@ Multi-user input. Data comes from the app’s user and other registered users.
 "DAP" is a revolutionary fashion app designed to help users discover and save their favorite fashion items effortlessly. With DAP, users can explore a vast array of fashion categories, ranging from casual wear to high-end couture. The app allows users to filter items by price, style, brand, and other preferences, making it easy to find exactly what they are looking for. Additionally, users can create a personalized wishlist to keep track of their favorite items, ensuring they never miss out on a coveted piece. Whether you're searching for the latest trends or timeless classics, DAP provides a seamless and enjoyable shopping experience tailored to your unique fashion tastes.
 
 ## App Features
-- Users can see multiple images of a fashion item, including zoomed-in views (Commit by Prashant)
-- Users can view the total price of items in the shopping cart (Commit by Prashant)
-- Users can receive personalized fashion recommendations based on their browsing and purchase history (Commit by Prashant)
-- Users can add or remove items in their shopping cart (Commit by Prashant)
-- Users can search for fashion items by category (Commit by Anjila)
-- Users can save favorite fashion items to a wishlist (Commit by Anjila)
-- Users can write reviews and  rate items on a scale of 1 to 5 stars for purchased items (Commit by Anjila)
-- Users can create and edit a profile (Commit by Anjila)
-- Users can compare multiple fashion items side by side (Commit by Dipesh)
-- Users can receive notifications for price drops and restocks on favorite or wishlist items (Commit by Dipesh)
-- Users can access styling tips and outfit ideas related to items they are viewing or have purchased (Commit by Dipesh)
-- Users can customize alerts for upcoming fashion events or sales (Commit by Dipesh)
+1.Create User SignUp and SignIn Features 
+2.User can Search Clothing products or Categories.
+3.Simple Navigation menus to browse products buy category
+4.User can see multiple images of fashion products 
+5.Allow user to save products on Wishlist they liked  future purchase
+6.Simplifying the checkout process to a single-click
+7.Users can add or remove products from their cart
+8.User can view the total price of products in the cart
+9.User can upload images to their profile
+10.User can update their account password directly from the app
+11.User is able to view their order history
+12..User get notify about new sales and discounts
 
