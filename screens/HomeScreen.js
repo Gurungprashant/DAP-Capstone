@@ -1,12 +1,105 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Image, ScrollView, TextInput, Text, TouchableOpacity, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { fetchCategories, fetchSubCategories, fetchProducts } from '../firebaseconfig/firebaseHelpers'; // Import your functions to fetch categories, subcategories, and products from Firebase
+
 
 export default function HomeScreen() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const scrollViewRef = useRef();
+
+  const handleSearch = (text) => {
+    setSearchQuery(text.toLowerCase());
+  };
+
+  useEffect(() => {
+    async function fetchDataFromFirebase() {
+      try {
+        const categoriesFromFirebase = await fetchCategories();
+        console.log('Fetched categories:', categoriesFromFirebase);
+        setCategories(categoriesFromFirebase);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    }
+
+    fetchDataFromFirebase();
+  }, []);
+
+  const handleCategoryPress = async (categoryId) => {
+    setSelectedIndex(categoryId);
+    try {
+      const subCategoriesFromFirebase = await fetchSubCategories(categoryId);
+      console.log('Fetched subcategories:', subCategoriesFromFirebase);
+      setSubCategories(subCategoriesFromFirebase);
+      setProducts([]); // Clear products when a category is selected
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+    }
+  };
+
+  const handleSubCategoryPress = async (subCategoryId) => {
+    try {
+      const productsFromFirebase = await fetchProducts(selectedIndex, subCategoryId);
+      console.log('Fetched products:', productsFromFirebase);
+      setProducts(productsFromFirebase);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>WELCOME TO DAP_FASHION</Text>
-      <Text style={styles.title}>Welcome to the Home Screen!</Text>
-
+      <View style={styles.searchContainer}>
+        <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search here..."
+          placeholderTextColor="#666"
+          onChangeText={handleSearch}
+        />
+      </View>
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesContainer}
+      >
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category.id}
+            style={[
+              styles.categoryItem,
+              selectedIndex === category.id && styles.selectedCategoryItem
+            ]}
+            onPress={() => handleCategoryPress(category.id)}
+          >
+            <Text style={styles.categoryText}>{category.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <View style={styles.subCategoriesContainer}>
+        {subCategories.map((subCategory) => (
+          <TouchableOpacity
+            key={subCategory.id}
+            style={styles.subCategoryItem}
+            onPress={() => handleSubCategoryPress(subCategory.id)}
+          >
+            <Text style={styles.subCategoryText}>{subCategory.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style={styles.productsContainer}>
+        {products.map((product) => (
+          <Text key={product.id} style={styles.productItem}>
+            {product.name}: ${product.price}
+          </Text>
+        ))}
+      </View>
     </View>
   );
 }
@@ -14,32 +107,68 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#f5f5f5',
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ff5722',
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    padding: 2,
+    alignItems: 'center',
+  },
+  searchIcon: {
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10,
+    fontSize: 16,
+  },
+  categoriesContainer: {
+    alignItems: 'center',
+    marginBottom: 10, // Reduce margin
+  },
+  categoryItem: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#ddd',
+    borderRadius: 20,
+  },
+  selectedCategoryItem: {
+    backgroundColor: '#007bff',
+  },
+  categoryText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  subCategoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  subCategoryItem: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#ddd',
+    borderRadius: 20,
+  },
+  subCategoryText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  productsContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  productItem: {
+    fontSize: 16,
     marginBottom: 10,
-    position: 'absolute',
-    top: 10,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    textAlign: 'center',
-    borderWidth: 2,
-    borderColor: '#000000',
-    letterSpacing: 1.5,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-    lineHeight: 28
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#ff5722',
   },
 });

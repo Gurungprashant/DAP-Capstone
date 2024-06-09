@@ -1,19 +1,20 @@
-// screens/SignInScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseconfig/firebaseConfig';
-import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure this package is installed
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleSignIn = () => {
-    if (!email.trim() || !password.trim()) {
+    if (email === '' || password === '') {
       Toast.show({
         type: 'error',
-        text1: 'All fields are required!'
+        text1: 'Please fill in all fields.',
       });
       return;
     }
@@ -22,18 +23,16 @@ export default function SignInScreen({ navigation }) {
       .then(() => {
         Toast.show({
           type: 'success',
-          text1: 'Signed in successfully!'
+          text1: 'Signed in successfully!',
         });
-        // Clear text fields after successful sign-in
         setEmail('');
         setPassword('');
-        // Navigate to Home screen
-        navigation.navigate('Home');
+        navigation.navigate('Main'); // Navigate to the Main tab navigator
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1: error.message
+          text1: error.message,
         });
       });
   };
@@ -48,14 +47,22 @@ export default function SignInScreen({ navigation }) {
         value={email}
         onChangeText={setEmail}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        value={password}
-        onChangeText={setPassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry={!passwordVisible}
+          autoCapitalize="none"
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity
+          style={styles.icon}
+          onPress={() => setPasswordVisible(!passwordVisible)}
+        >
+          <Icon name={passwordVisible ? 'eye' : 'eye-slash'} size={20} color="#777" />
+        </TouchableOpacity>
+      </View>
       <TouchableHighlight style={styles.button} underlayColor="#ff7043" onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableHighlight>
@@ -79,7 +86,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     fontWeight: 'bold',
     color: '#ff5722',
-    marginTop: 180,
   },
   input: {
     width: '100%',
@@ -88,13 +94,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 15,
+    paddingLeft: 20,
+    paddingRight: 45, // make room for the icon
     borderRadius: 25,
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    position: 'relative',
+  },
+  icon: {
+    position: 'absolute',
+    right: 15,
+    padding: 10,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     width: '100%',
