@@ -1,8 +1,7 @@
-// screens/SignInScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseconfig/firebaseConfig';
-import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from 'react-native-toast-message';
 
 export default function SignInScreen({ navigation }) {
@@ -10,10 +9,10 @@ export default function SignInScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleSignIn = () => {
-    if (!email.trim() || !password.trim()) {
+    if (email === '' || password === '') {
       Toast.show({
         type: 'error',
-        text1: 'All fields are required!'
+        text1: 'Please fill in all fields.',
       });
       return;
     }
@@ -22,18 +21,16 @@ export default function SignInScreen({ navigation }) {
       .then(() => {
         Toast.show({
           type: 'success',
-          text1: 'Signed in successfully!'
+          text1: 'Signed in successfully!',
         });
-        // Clear text fields after successful sign-in
         setEmail('');
         setPassword('');
-        // Navigate to Home screen
-        navigation.navigate('Home');
+        navigation.navigate('Main'); // Navigate to the Main tab navigator
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1: error.message
+          text1: error.message,
         });
       });
   };
@@ -79,7 +76,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     fontWeight: 'bold',
     color: '#ff5722',
-    marginTop: 180,
   },
   input: {
     width: '100%',

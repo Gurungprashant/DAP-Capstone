@@ -1,12 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function HomeScreen() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (text) => {
+    setSearchQuery(text.toLowerCase());
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>WELCOME TO DAP_FASHION</Text>
-      <Text style={styles.title}>Welcome to the Home Screen!</Text>
-
+      <View style={styles.searchContainer}>
+        <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search here..."
+          placeholderTextColor="#666"
+          onChangeText={handleSearch}
+        />
+      </View>
     </View>
   );
 }
@@ -15,31 +28,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Align items at the top
     backgroundColor: '#f5f5f5',
+    paddingTop: 40, // Add padding to space out from the top
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ff5722',
-    marginBottom: 10,
-    position: 'absolute',
-    top: 10,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    textAlign: 'center',
-    borderWidth: 2,
-    borderColor: '#000000',
-    letterSpacing: 1.5,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-    lineHeight: 28
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    padding: 2,
+    alignItems: 'center',
+    width: '90%', // Adjust the width as needed
   },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#ff5722',
+  searchIcon: {
+    marginLeft: 10, // Adjust margin to space out the icon
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10, // Adjust padding for input field
+    fontSize: 16,
   },
 });
