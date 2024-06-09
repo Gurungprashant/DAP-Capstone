@@ -16,7 +16,7 @@ Multi-user input. Data comes from the app’s user and other registered users.
 
 ## App Features
 - Accessible SignUp and SignIn options facilitate personalized shopping experiences.
-- Navigate effortlessly with a user-friendly menu, access exclusive deals and offers, and swiftly locate items using the search bar.
+- Navigate effortlessly with a user-friendly menu, view exclusive deals and offers.
 - Browse through a wide range of categories, sub-categories, and products tailored to your preferences.
 - Explore fashion products with multiple images for a comprehensive view before purchase.
 - Save desired items to your Wishlist for convenient future reference and purchase.

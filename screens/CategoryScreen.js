@@ -1,6 +1,5 @@
-// screens/CategoryScreen.js
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCategories } from '../firebaseconfig/firebaseHelpers';
 
@@ -9,25 +8,34 @@ export default function CategoryScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const loadCategories = async () => {
-      const categoriesData = await fetchCategories();
-      setCategories(categoriesData);
-    };
+    async function fetchDataFromFirebase() {
+      try {
+        const categoriesFromFirebase = await fetchCategories();
+        console.log('Fetched categories:', categoriesFromFirebase);
+        setCategories(categoriesFromFirebase);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    }
 
-    loadCategories();
+    fetchDataFromFirebase();
   }, []);
+
+  const handleCategoryPress = (categoryId) => {
+    navigation.navigate('SubCategoryScreen', { categoryId });
+  };
 
   return (
     <View style={styles.container}>
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.id}
-          style={styles.categoryButton}
-          onPress={() => navigation.navigate('SubCategory', { categoryId: category.id })} // Navigate to SubCategory screen
-        >
-          <Text style={styles.categoryText}>{category.name}</Text>
-        </TouchableOpacity>
-      ))}
+      <FlatList
+        data={categories}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.item} onPress={() => handleCategoryPress(item.id)}>
+            <Text style={styles.itemText}>{item.name}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 }
@@ -35,20 +43,21 @@ export default function CategoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
-  categoryButton: {
+  item: {
     width: '100%',
     padding: 15,
-    backgroundColor: '#ff5722',
-    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 10,
-    alignItems: 'center',
+    marginBottom: 10,
+    backgroundColor: '#fff',
   },
-  categoryText: {
-    color: '#fff',
+  itemText: {
     fontSize: 18,
     fontWeight: 'bold',
   },

@@ -1,4 +1,3 @@
-// screens/SubCategoryScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,11 +9,19 @@ export default function SubCategoryScreen({ route }) {
   const navigation = useNavigation();
 
   useEffect(() => {
-    fetchSubCategories(categoryId).then(data => setSubCategories(data));
+    async function loadSubCategories() {
+      try {
+        const subCategoriesFromFirebase = await fetchSubCategories(categoryId);
+        setSubCategories(subCategoriesFromFirebase);
+      } catch (error) {
+        console.error('Error fetching subcategories:', error);
+      }
+    }
+    loadSubCategories();
   }, [categoryId]);
 
   const handleSubCategoryPress = (subCategoryId) => {
-    navigation.navigate('Product', { categoryId, subCategoryId });
+    navigation.navigate('ProductScreen', { categoryId, subCategoryId });
   };
 
   return (

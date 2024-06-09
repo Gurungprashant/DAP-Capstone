@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, ScrollView, TextInput, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TextInput, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchCategories, fetchSubCategories, fetchProducts } from '../firebaseconfig/firebaseHelpers'; // Import your functions to fetch categories, subcategories, and products from Firebase
-
+import { fetchCategories, fetchImages } from '../firebaseconfig/firebaseHelpers';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const navigation = useNavigation();
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef();
 
   const handleSearch = (text) => {
@@ -17,39 +17,59 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
+    async function fetchImagesFromFirebase() {
+      try {
+        const imagesFromFirebase = await fetchImages();
+        setImages(imagesFromFirebase);
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    }
+
+    fetchImagesFromFirebase();
+  }, []);
+
+  useEffect(() => {
+    // Scroll to the next image every 3 seconds
+    const interval = setInterval(() => {
+      if (currentIndex < images.length - 1) {
+        scrollViewRef.current.scrollTo({
+          x: (currentIndex + 1) * width,
+          animated: true,
+        });
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+      } else {
+        scrollViewRef.current.scrollTo({
+          x: 0,
+          animated: true,
+        });
+        setCurrentIndex(0);
+      }
+    }, 3000); // Change image every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [currentIndex, images.length]);
+
+  // Get the dimensions of the screen
+  const { width } = Dimensions.get('window');
+
+  // Define the aspect ratio for the images
+  const aspectRatio = 16 / 9; // Adjust as needed
+
+  useEffect(() => {
     async function fetchDataFromFirebase() {
       try {
         const categoriesFromFirebase = await fetchCategories();
-        console.log('Fetched categories:', categoriesFromFirebase);
         setCategories(categoriesFromFirebase);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
     }
-
     fetchDataFromFirebase();
   }, []);
 
-  const handleCategoryPress = async (categoryId) => {
-    setSelectedIndex(categoryId);
-    try {
-      const subCategoriesFromFirebase = await fetchSubCategories(categoryId);
-      console.log('Fetched subcategories:', subCategoriesFromFirebase);
-      setSubCategories(subCategoriesFromFirebase);
-      setProducts([]); // Clear products when a category is selected
-    } catch (error) {
-      console.error('Error fetching subcategories:', error);
-    }
-  };
-
-  const handleSubCategoryPress = async (subCategoryId) => {
-    try {
-      const productsFromFirebase = await fetchProducts(selectedIndex, subCategoryId);
-      console.log('Fetched products:', productsFromFirebase);
-      setProducts(productsFromFirebase);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+  const handleCategoryPress = (categoryId) => {
+    navigation.navigate('SubCategoryScreen', { categoryId });
   };
 
   return (
@@ -60,46 +80,42 @@ export default function HomeScreen() {
           style={styles.searchInput}
           placeholder="Search here..."
           placeholderTextColor="#666"
-          onChangeText={handleSearch}
+          onChangeText={(text) => setSearchQuery(text.toLowerCase())}
         />
       </View>
       <ScrollView
         ref={scrollViewRef}
         horizontal
+        pagingEnabled
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoriesContainer}
+        onScroll={(event) => {
+          // Calculate the current index based on the scroll position
+          const contentOffset = event.nativeEvent.contentOffset.x;
+          const index = Math.floor(contentOffset / width);
+          setCurrentIndex(index);
+        }}
+        style={styles.imageScrollContainer} // Add style for ScrollView
       >
+        {images.map((image, index) => (
+          <Image
+            key={index}
+            source={{ uri: image.url }}
+            style={[styles.image, { width: width - 20, height: (width - 500) / aspectRatio }]} // Adjust margin and padding as needed
+            resizeMode="cover" // Make sure the image covers the entire area
+          />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
-            style={[
-              styles.categoryItem,
-              selectedIndex === category.id && styles.selectedCategoryItem
-            ]}
+            style={styles.categoryItem}
             onPress={() => handleCategoryPress(category.id)}
           >
             <Text style={styles.categoryText}>{category.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <View style={styles.subCategoriesContainer}>
-        {subCategories.map((subCategory) => (
-          <TouchableOpacity
-            key={subCategory.id}
-            style={styles.subCategoryItem}
-            onPress={() => handleSubCategoryPress(subCategory.id)}
-          >
-            <Text style={styles.subCategoryText}>{subCategory.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.productsContainer}>
-        {products.map((product) => (
-          <Text key={product.id} style={styles.productItem}>
-            {product.name}: ${product.price}
-          </Text>
-        ))}
-      </View>
     </View>
   );
 }
@@ -109,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -130,10 +146,18 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
   },
-  categoriesContainer: {
-    alignItems: 'center',
-    marginBottom: 10, // Reduce margin
+  image: {
+    borderRadius: 5,
+    margin: 4,
+    backgroundColor:'red'
   },
+  categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    paddingVertical: 10, // Add padding to ensure space around the category items
+  },  
   categoryItem: {
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -141,34 +165,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     borderRadius: 20,
   },
-  selectedCategoryItem: {
-    backgroundColor: '#007bff',
-  },
   categoryText: {
     fontSize: 16,
     color: '#000',
-  },
-  subCategoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  subCategoryItem: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    backgroundColor: '#ddd',
-    borderRadius: 20,
-  },
-  subCategoryText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  productsContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  productItem: {
-    fontSize: 16,
-    marginBottom: 10,
   },
 });
