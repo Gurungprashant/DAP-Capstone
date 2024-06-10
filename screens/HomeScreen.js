@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Text, ScrollView, TextInput, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchCategories, fetchImages } from '../firebaseconfig/firebaseHelpers';
+import { fetchImages } from '../firebaseconfig/firebaseHelpers';
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState([]);
   const navigation = useNavigation();
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,22 +55,6 @@ export default function HomeScreen() {
   // Define the aspect ratio for the images
   const aspectRatio = 16 / 9; // Adjust as needed
 
-  useEffect(() => {
-    async function fetchDataFromFirebase() {
-      try {
-        const categoriesFromFirebase = await fetchCategories();
-        setCategories(categoriesFromFirebase);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    }
-    fetchDataFromFirebase();
-  }, []);
-
-  const handleCategoryPress = (categoryId) => {
-    navigation.navigate('SubCategoryScreen', { categoryId });
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -103,17 +86,6 @@ export default function HomeScreen() {
             style={[styles.image, { width: width - 20, height: (width - 500) / aspectRatio }]} // Adjust margin and padding as needed
             resizeMode="cover" // Make sure the image covers the entire area
           />
-        ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={styles.categoryItem}
-            onPress={() => handleCategoryPress(category.id)}
-          >
-            <Text style={styles.categoryText}>{category.name}</Text>
-          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
@@ -152,22 +124,5 @@ const styles = StyleSheet.create({
     margin: 4,
     backgroundColor:'red'
   },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 5,
-    paddingVertical: 10, // Add padding to ensure space around the category items
-  },  
-  categoryItem: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    backgroundColor: '#ddd',
-    borderRadius: 20,
-  },
-  categoryText: {
-    fontSize: 16,
-    color: '#000',
-  },
+
 });
