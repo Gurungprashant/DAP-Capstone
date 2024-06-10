@@ -1,74 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../firebaseconfig/firebaseConfig';
-import Toast from 'react-native-toast-message';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure this package is installed
+// Ensure this package is installed
 
 export default function SignUpScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  const handleSignUp = () => {
-    if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      Toast.show({
-        type: 'error',
-        text1: 'All fields are required!'
-      });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Toast.show({
-        type: 'error',
-        text1: 'Passwords do not match!'
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      Toast.show({
-        type: 'error',
-        text1: 'Password should be at least 6 characters long!'
-      });
-      return;
-    }
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        Toast.show({
-          type: 'success',
-          text1: 'User account created!'
-        });
-        setFullName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        navigation.navigate('SignIn');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          Toast.show({
-            type: 'error',
-            text1: 'That email address is already in use!'
-          });
-        } else if (error.code === 'auth/invalid-email') {
-          Toast.show({
-            type: 'error',
-            text1: 'That email address is invalid!'
-          });
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: error.message
-          });
-        }
-      });
-  };
 
   return (
     <View style={styles.container}>
@@ -96,38 +34,8 @@ export default function SignUpScreen({ navigation }) {
           value={password}
           onChangeText={setPassword}
         />
-        <TouchableOpacity
-          style={styles.icon}
-          onPress={() => setPasswordVisible(!passwordVisible)}
-        >
-          <Icon name={passwordVisible ? 'eye' : 'eye-slash'} size={20} color="#777" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          placeholder="Confirm Password"
-          secureTextEntry={!confirmPasswordVisible}
-          autoCapitalize="none"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-        <TouchableOpacity
-          style={styles.icon}
-          onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-        >
-          <Icon name={confirmPasswordVisible ? 'eye' : 'eye-slash'} size={20} color="#777" />
-        </TouchableOpacity>
-      </View>
-      <TouchableHighlight style={styles.button} underlayColor="#ff7043" onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableHighlight>
-      <Text style={styles.loginPrompt}>
-        Have an account?{' '}
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-          <Text style={styles.loginLink}>Log in</Text>
-        </TouchableOpacity>
-      </Text>
+       
+          
     </View>
   );
 }
