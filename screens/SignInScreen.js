@@ -8,7 +8,34 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure this package
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const handleSignIn = () => {
+    if (email === '' || password === '') {
+      Toast.show({
+        type: 'error',
+        text1: 'Please fill in all fields.',
+      });
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        Toast.show({
+          type: 'success',
+          text1: 'Signed in successfully!',
+        });
+        setEmail('');
+        setPassword('');
+        navigation.navigate('Main'); // Navigate to the Main tab navigator
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: error.message,
+        });
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -29,8 +56,19 @@ export default function SignInScreen({ navigation }) {
           value={password}
           onChangeText={setPassword}
         />
-       
-    </View>
+        <TouchableOpacity
+          style={styles.icon}
+          onPress={() => setPasswordVisible(!passwordVisible)}
+        >
+          <Icon name={passwordVisible ? 'eye' : 'eye-slash'} size={20} color="#777" />
+        </TouchableOpacity>
+      </View>
+      <TouchableHighlight style={styles.button} underlayColor="#ff7043" onPress={handleSignIn}>
+        <Text style={styles.buttonText}>Sign In</Text>
+      </TouchableHighlight>
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={styles.linkText}>Create an Account</Text>
+      </TouchableOpacity>
     </View>
   );
 }
