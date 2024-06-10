@@ -112,6 +112,7 @@ export default function HomeScreen() {
             style={styles.categoryItem}
             onPress={() => handleCategoryPress(category.id)}
           >
+  
             <Text style={styles.categoryText}>{category.name}</Text>
           </TouchableOpacity>
         ))}
