@@ -15,6 +15,7 @@ import SubCategoryScreen from './screens/SubCategoryScreen';
 import CategoryScreen from './screens/CategoryScreen';
 import ProductScreen from './screens/ProductScreen';
 
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 

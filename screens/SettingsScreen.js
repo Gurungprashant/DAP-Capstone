@@ -1,3 +1,4 @@
+
 //screens/SettingsScreen.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';

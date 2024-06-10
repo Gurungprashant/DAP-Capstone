@@ -30,6 +30,7 @@ export default function SubCategoryScreen({ route }) {
         data={subCategories}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
+
           <TouchableOpacity style={styles.item} onPress={() => handleSubCategoryPress(item.id)}>
             <Text style={styles.itemText}>{item.name}</Text>
           </TouchableOpacity>

@@ -1,4 +1,3 @@
-// firebaseHelpers.js
 import { collection, getDocs, doc, getDoc, where, query } from "firebase/firestore";
 import { db } from './firebaseConfig';
 
@@ -18,19 +17,13 @@ export const fetchCategories = async () => {
 };
 
 export const fetchSubCategories = async (categoryId) => {
-  try {
-    const subCategoryCollection = collection(db, 'categories', categoryId, 'subcategories');
-    const querySnapshot = await getDocs(subCategoryCollection);
-    const subCategories = [];
-    querySnapshot.forEach((doc) => {
-      subCategories.push({ id: doc.id, ...doc.data() });
-    });
-    console.log('Fetched subcategories:', subCategories); // Log fetched subcategories
-    return subCategories;
-  } catch (error) {
-    console.error('Error fetching subcategories:', error); // Log any errors
-    throw error;
-  }
+  const subCategoryCollection = collection(db, 'categories', categoryId, 'subcategories');
+  const querySnapshot = await getDocs(subCategoryCollection);
+  const subCategories = [];
+  querySnapshot.forEach((doc) => {
+    subCategories.push({ id: doc.id, ...doc.data() });
+  });
+  return subCategories;
 };
 
 export const fetchProducts = async (categoryId, subCategoryId) => {
