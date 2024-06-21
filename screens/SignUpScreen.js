@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseconfig/firebaseConfig';
-import Toast from 'react-native-toast-message';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure this package is installed
+import { showMessage } from 'react-native-flash-message';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function SignUpScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
@@ -13,36 +13,36 @@ export default function SignUpScreen({ navigation }) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
+  const showError = (message) => {
+    showMessage({
+      message: "Error",
+      description: message,
+      type: "danger",
+    });
+  };
+
   const handleSignUp = () => {
     if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      Toast.show({
-        type: 'error',
-        text1: 'All fields are required!'
-      });
+      showError('All fields are required!');
       return;
     }
 
     if (password !== confirmPassword) {
-      Toast.show({
-        type: 'error',
-        text1: 'Passwords do not match!'
-      });
+      showError('Passwords do not match!');
       return;
     }
 
     if (password.length < 6) {
-      Toast.show({
-        type: 'error',
-        text1: 'Password should be at least 6 characters long!'
-      });
+      showError('Password should be at least 6 characters long!');
       return;
     }
 
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
-        Toast.show({
-          type: 'success',
-          text1: 'User account created!'
+        showMessage({
+          message: "Success",
+          description: "User account created!",
+          type: "success",
         });
         setFullName('');
         setEmail('');
@@ -51,21 +51,19 @@ export default function SignUpScreen({ navigation }) {
         navigation.navigate('SignIn');
       })
       .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          Toast.show({
-            type: 'error',
-            text1: 'That email address is already in use!'
-          });
-        } else if (error.code === 'auth/invalid-email') {
-          Toast.show({
-            type: 'error',
-            text1: 'That email address is invalid!'
-          });
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: error.message
-          });
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            showError('That email address is already in use!');
+            break;
+          case 'auth/invalid-email':
+            showError('The email address is not valid. Please enter a valid email address.');
+            break;
+          case 'auth/weak-password':
+            showError('The password is too weak. Please enter a stronger password.');
+            break;
+          default:
+            showError(error.message);
+            break;
         }
       });
   };
@@ -122,12 +120,12 @@ export default function SignUpScreen({ navigation }) {
       <TouchableHighlight style={styles.button} underlayColor="#ff7043" onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableHighlight>
-      <Text style={styles.loginPrompt}>
-        Have an account?{' '}
+      <View style={styles.loginPrompt}>
+        <Text style={styles.loginText}>Have an account? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
           <Text style={styles.loginLink}>Log in</Text>
         </TouchableOpacity>
-      </Text>
+      </View>
     </View>
   );
 }
@@ -188,13 +186,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loginPrompt: {
+    flexDirection: 'row',
     marginTop: 20, // Margin above the login prompt
+  },
+  loginText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ff5722',
   },
   loginLink: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ff5722',
     textDecorationLine: 'underline',
   },
 });
-

@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FlashMessage from 'react-native-flash-message';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -14,7 +15,6 @@ import WishListScreen from './screens/WishListScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import CategoryScreen from './screens/CategoryScreen';
 import ProductScreen from './screens/ProductScreen';
-
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,11 +58,12 @@ export default function App() {
         <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
         <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Subcategories' }} />
+        <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections'}} />
         <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
         <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
         <Stack.Screen name="About" component={AboutScreen} />
       </Stack.Navigator>
+      <FlashMessage position="top" />
     </NavigationContainer>
   );
 }

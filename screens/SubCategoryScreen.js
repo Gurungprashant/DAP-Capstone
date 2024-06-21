@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchSubCategories } from '../firebaseconfig/firebaseHelpers';
 
@@ -26,13 +26,17 @@ export default function SubCategoryScreen({ route }) {
 
   return (
     <View style={styles.container}>
+      
       <FlatList
         data={subCategories}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-
           <TouchableOpacity style={styles.item} onPress={() => handleSubCategoryPress(item.id)}>
-            <Text style={styles.itemText}>{item.name}</Text>
+            <ImageBackground source={{ uri: item.imageUrl }} style={styles.imageBackground}>
+              <View style={styles.overlay}>
+                <Text style={styles.itemText}>{item.name}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
         )}
       />
@@ -43,22 +47,33 @@ export default function SubCategoryScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
+    marginTop: 10,
     backgroundColor: '#f5f5f5',
   },
   item: {
     width: '100%',
-    padding: 15,
+    height: 160,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
-    marginBottom: 10,
-    backgroundColor: '#fff',
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   itemText: {
-    fontSize: 18,
+    fontSize: 26,
     fontWeight: 'bold',
+    color: '#fff', 
   },
 });

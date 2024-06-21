@@ -2,38 +2,60 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseconfig/firebaseConfig';
-import Toast from 'react-native-toast-message';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure this package is installed
+import { showMessage } from 'react-native-flash-message';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+  const showError = (message) => {
+    showMessage({
+      message: "Error",
+      description: message,
+      type: "danger",
+    });
+  };
+
   const handleSignIn = () => {
     if (email === '' || password === '') {
-      Toast.show({
-        type: 'error',
-        text1: 'Please fill in all fields.',
-      });
+      showError('Please fill in all fields.');
       return;
     }
 
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        Toast.show({
-          type: 'success',
-          text1: 'Signed in successfully!',
+        showMessage({
+          message: "Success",
+          description: "Signed in successfully!",
+          type: "success",
         });
         setEmail('');
         setPassword('');
         navigation.navigate('Main'); // Navigate to the Main tab navigator
       })
       .catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: error.message,
-        });
+        switch (error.code) {
+          case 'auth/invalid-email':
+            showError('The email address is not valid. Please enter a valid email address.');
+            break;
+          case 'auth/user-disabled':
+            showError('This user has been disabled.');
+            break;
+          case 'auth/user-not-found':
+            showError('No user found with this email address.');
+            break;
+          case 'auth/wrong-password':
+            showError('The password is incorrect.');
+            break;
+          case 'auth/invalid-credential':
+            showError('The credentials are not valid. Please check your email and password.');
+            break;
+          default:
+            showError(error.message);
+            break;
+        }
       });
   };
 
@@ -95,7 +117,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 15,
     paddingLeft: 20,
-    paddingRight: 45, // make room for the icon
+    paddingRight: 45, // Make room for the icon
     borderRadius: 25,
     backgroundColor: '#fff',
   },
