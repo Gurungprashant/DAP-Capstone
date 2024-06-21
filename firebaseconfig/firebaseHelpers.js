@@ -45,7 +45,6 @@ export const fetchProducts = async (categoryId, subCategoryId) => {
   }
 };
 
-
 export const fetchImages = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'images'));
