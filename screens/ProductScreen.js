@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { fetchProducts } from '../firebaseconfig/firebaseHelpers';
 
-export default function ProductScreen({ route }) {
+export default function ProductScreen({ route, navigation }) {
   const { categoryId, subCategoryId } = route.params;
   const [products, setProducts] = useState([]);
 
@@ -45,14 +45,17 @@ export default function ProductScreen({ route }) {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
-        numColumns={2} 
-        key={2} 
+        numColumns={2}
+        key={2}
         renderItem={({ item }) => (
-          <View style={[styles.productItem, { width: itemWidth }]}>
+          <TouchableOpacity
+            style={[styles.productItem, { width: itemWidth }]}
+            onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}
+          >
             {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
             <Text style={styles.productText}>{item.name}</Text>
             <Text style={styles.productPrice}>${item.price}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         contentContainerStyle={styles.flatListContainer}
       />
