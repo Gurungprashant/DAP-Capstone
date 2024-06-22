@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchProducts } from '../firebaseconfig/firebaseHelpers';
 
 export default function ProductScreen({ route, navigation }) {
@@ -49,6 +50,9 @@ export default function ProductScreen({ route, navigation }) {
         key={2}
         renderItem={({ item }) => (
           <View style={[styles.productItem, { width: itemWidth }]}>
+            <TouchableOpacity style={styles.wishlistIcon}>
+              <Icon name="heart" size={20} color="#ffffff" />
+            </TouchableOpacity>
             <View style={styles.imageContainer}>
               {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
             </View>
@@ -82,6 +86,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
+  wishlistIcon: {
+    position: 'absolute',
+    top: 100,
+    right: 10,
+    zIndex: 1,
+    border: '2px solid red'
+},
+
   imageContainer: {
     width: '100%',
     height: 150,

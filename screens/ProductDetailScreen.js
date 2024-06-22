@@ -15,7 +15,7 @@ export default function ProductDetailScreen({ route }) {
         {images.map((image, index) => (
           <Image
             key={index}
-            source={{ uri: image }}
+            source={{ uri: image }} 
             style={styles.image}
           />
         ))}
