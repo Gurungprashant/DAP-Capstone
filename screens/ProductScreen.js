@@ -19,7 +19,7 @@ export default function ProductScreen({ route, navigation }) {
   }, [categoryId, subCategoryId]);
 
   const { width } = Dimensions.get('window');
-  const itemWidth = (width - 35) / 2; 
+  const itemWidth = (width - 35) / 2;
 
   const renderImageSlider = (images) => {
     return (
@@ -48,14 +48,15 @@ export default function ProductScreen({ route, navigation }) {
         numColumns={2}
         key={2}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.productItem, { width: itemWidth }]}
-            onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}
-          >
-            {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
-            <Text style={styles.productText}>{item.name}</Text>
+          <View style={[styles.productItem, { width: itemWidth }]}>
+            <View style={styles.imageContainer}>
+              {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}>
+              <Text style={styles.productText}>{item.name}</Text>
+            </TouchableOpacity>
             <Text style={styles.productPrice}>${item.price}</Text>
-          </TouchableOpacity>
+          </View>
         )}
         contentContainerStyle={styles.flatListContainer}
       />
@@ -81,10 +82,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
-  imageSlider: {
+  imageContainer: {
     width: '100%',
     height: 150,
     marginBottom: 10,
+  },
+  imageSlider: {
+    width: '100%',
+    height: '100%',
   },
   image: {
     width: 150,
