@@ -18,9 +18,8 @@ export default function ProductScreen({ route }) {
     loadProducts();
   }, [categoryId, subCategoryId]);
 
-  // Get the screen width
   const { width } = Dimensions.get('window');
-  const itemWidth = (width - 35) / 2; // Two items per row with some margin
+  const itemWidth = (width - 35) / 2; 
 
   const renderImageSlider = (images) => {
     return (
@@ -46,8 +45,8 @@ export default function ProductScreen({ route }) {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
-        numColumns={2} // Set the number of columns
-        key={2} // Force a fresh render with a static key
+        numColumns={2} 
+        key={2} 
         renderItem={({ item }) => (
           <View style={[styles.productItem, { width: itemWidth }]}>
             {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   },
   imageSlider: {
     width: '100%',
-    height: 150, // Adjust the height for the slider
+    height: 150,
     marginBottom: 10,
   },
   image: {
