@@ -1,3 +1,4 @@
+//firebaseHelpers.js
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from './firebaseConfig';
 

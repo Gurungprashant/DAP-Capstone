@@ -1,3 +1,4 @@
+//ProductScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -6,6 +7,7 @@ import { fetchProducts } from '../firebaseconfig/firebaseHelpers';
 export default function ProductScreen({ route, navigation }) {
   const { categoryId, subCategoryId } = route.params;
   const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     async function loadProducts() {
@@ -41,6 +43,14 @@ export default function ProductScreen({ route, navigation }) {
     );
   };
 
+  const toggleWishlist = (productId) => {
+    setWishlist((prevWishlist) =>
+      prevWishlist.includes(productId)
+        ? prevWishlist.filter((id) => id !== productId)
+        : [...prevWishlist, productId]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -50,9 +60,6 @@ export default function ProductScreen({ route, navigation }) {
         key={2}
         renderItem={({ item }) => (
           <View style={[styles.productItem, { width: itemWidth }]}>
-            <TouchableOpacity style={styles.wishlistIcon}>
-              <Icon name="heart" size={20} color="#ffffff" />
-            </TouchableOpacity>
             <View style={styles.imageContainer}>
               {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
             </View>
@@ -60,6 +67,13 @@ export default function ProductScreen({ route, navigation }) {
               <Text style={styles.productText}>{item.name}</Text>
             </TouchableOpacity>
             <Text style={styles.productPrice}>${item.price}</Text>
+            <TouchableOpacity
+              style={styles.wishlistIcon}
+              onPress={() => toggleWishlist(item.id)}
+            >
+              <Icon name="heart" size={22} color="#000" style={styles.iconShadow} />
+              <Icon name="heart" size={20} color={wishlist.includes(item.id) ? '#ff6666' : '#fff'} />
+            </TouchableOpacity>
           </View>
         )}
         contentContainerStyle={styles.flatListContainer}
@@ -86,14 +100,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
-  wishlistIcon: {
-    position: 'absolute',
-    top: 100,
-    right: 10,
-    zIndex: 1,
-    border: '2px solid red'
-},
-
   imageContainer: {
     width: '100%',
     height: 150,
@@ -116,5 +122,18 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 16,
     color: '#888',
+  },
+  wishlistIcon: {
+    position: 'absolute',
+    top: 125,
+    right: 13,
+    zIndex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+  },
+  iconShadow: {
+    position: 'absolute',
   },
 });
