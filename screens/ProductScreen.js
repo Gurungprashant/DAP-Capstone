@@ -1,13 +1,13 @@
-//ProductScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchProducts } from '../firebaseconfig/firebaseHelpers';
+import { useWishlist } from './WishlistContext'; // Import useWishlist hook
 
 export default function ProductScreen({ route, navigation }) {
   const { categoryId, subCategoryId } = route.params;
   const [products, setProducts] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(); // Destructure wishlist context
 
   useEffect(() => {
     async function loadProducts() {
@@ -43,12 +43,12 @@ export default function ProductScreen({ route, navigation }) {
     );
   };
 
-  const toggleWishlist = (productId) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.includes(productId)
-        ? prevWishlist.filter((id) => id !== productId)
-        : [...prevWishlist, productId]
-    );
+  const toggleWishlist = (product) => {
+    if (wishlist.some(item => item.id === product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
   };
 
   return (
@@ -69,10 +69,10 @@ export default function ProductScreen({ route, navigation }) {
             <Text style={styles.productPrice}>${item.price}</Text>
             <TouchableOpacity
               style={styles.wishlistIcon}
-              onPress={() => toggleWishlist(item.id)}
+              onPress={() => toggleWishlist(item)}
             >
               <Icon name="heart" size={22} color="#000" style={styles.iconShadow} />
-              <Icon name="heart" size={20} color={wishlist.includes(item.id) ? '#ff6666' : '#fff'} />
+              <Icon name="heart" size={20} color={wishlist.some(wish => wish.id === item.id) ? '#ff6666' : '#fff'} />
             </TouchableOpacity>
           </View>
         )}

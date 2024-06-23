@@ -56,7 +56,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 10,
   },
-
+  imageSlider: {
+    width: '100%',
+    height: 300,
+    marginBottom: 10,
+  },
   image: {
     width: 300,
     height: 300,

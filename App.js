@@ -1,10 +1,10 @@
-//App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from 'react-native-flash-message';
+import { WishlistProvider } from './screens/WishlistContext'; // Import WishlistProvider
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -55,19 +55,20 @@ function MainTabNavigator() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignIn">
-        <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
-        <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections'}} />
-        <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
-        <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details'
-         }} />
-        <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
-        <Stack.Screen name="About" component={AboutScreen} />
-      </Stack.Navigator>
-      <FlashMessage position="top" />
-    </NavigationContainer>
+    <WishlistProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="SignIn">
+          <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
+          <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections'}} />
+          <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
+          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
+          <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
+        </Stack.Navigator>
+        <FlashMessage position="top" />
+      </NavigationContainer>
+    </WishlistProvider>
   );
 }
