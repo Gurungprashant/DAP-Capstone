@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from 'react-native-flash-message';
-import { WishlistProvider } from './screens/WishlistContext'; // Import WishlistProvider
+import { WishlistProvider } from './screens/WishlistContext';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';

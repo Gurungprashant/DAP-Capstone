@@ -11,7 +11,10 @@ export default function WishListScreen({ navigation }) {
         data={wishlist}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.productItem}>
+          <TouchableOpacity
+            style={styles.productItem}
+            onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}
+          >
             <Image source={{ uri: item.imageUrl[0] }} style={styles.image} />
             <View style={styles.infoContainer}>
               <Text style={styles.productText}>{item.name}</Text>
@@ -20,7 +23,7 @@ export default function WishListScreen({ navigation }) {
                 <Text style={styles.removeButton}>Remove</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>
