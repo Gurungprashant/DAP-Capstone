@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProductDetailScreen({ route }) {
   const { product } = route.params;
   const [wishlist, setWishlist] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const navigation = useNavigation();
 
   const toggleWishlist = (productId) => {
     setWishlist((prevWishlist) =>
@@ -74,7 +76,10 @@ export default function ProductDetailScreen({ route }) {
       <TouchableOpacity style={styles.button} onPress={() => alert('Added to cart')}>
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={() => alert('Proceed to buy')}>
+      <TouchableOpacity
+        style={[styles.button, styles.buyNowButton]}
+        onPress={() => navigation.navigate('CheckOutScreen', { product, quantity })}
+      >
         <Text style={styles.buttonText}>Buy Now</Text>
       </TouchableOpacity>
     </View>

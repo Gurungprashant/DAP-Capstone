@@ -17,6 +17,7 @@ import SubCategoryScreen from './screens/SubCategoryScreen';
 import CategoryScreen from './screens/CategoryScreen';
 import ProductScreen from './screens/ProductScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
+import CheckOutScreen from './screens/CheckOutScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,6 +65,7 @@ export default function App() {
           <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections'}} />
           <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
           <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
+          <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />
           <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
         </Stack.Navigator>
