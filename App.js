@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from 'react-native-flash-message';
-import { WishlistProvider } from './screens/WishlistContext';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -18,6 +17,7 @@ import CategoryScreen from './screens/CategoryScreen';
 import ProductScreen from './screens/ProductScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 import CheckOutScreen from './screens/CheckOutScreen';
+import { WishlistProvider } from './screens/WishlistContext'; 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -62,7 +62,7 @@ export default function App() {
           <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
           <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-          <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections'}} />
+          <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections' }} />
           <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
           <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
           <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />

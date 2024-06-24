@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
+import { useWishlist } from './WishlistContext';
 
 export default function ProductDetailScreen({ route }) {
-  const { product } = route.params;
-  const [wishlist, setWishlist] = useState([]);
+  const { product, categoryId, subCategoryId } = route.params;
   const [quantity, setQuantity] = useState(1);
-  const navigation = useNavigation();
+  const { wishlist, toggleWishlistItem } = useWishlist();
+  const [wishlistState, setWishlistState] = useState(false);
 
-  const toggleWishlist = (productId) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.includes(productId)
-        ? prevWishlist.filter((id) => id !== productId)
-        : [...prevWishlist, productId]
-    );
+  useEffect(() => {
+    if (wishlist) {
+      setWishlistState(wishlist.some(item => item.productId === product.id));
+    }
+  }, [wishlist, product]);
+
+  const toggleWishlist = () => {
+    toggleWishlistItem({
+      categoryId,
+      subCategoryId,
+      productId: product.id,
+    });
+    setWishlistState(!wishlistState);
   };
 
   const renderImageSlider = (images) => {
@@ -54,10 +61,10 @@ export default function ProductDetailScreen({ route }) {
       </View>
       <TouchableOpacity
         style={styles.wishlistIcon}
-        onPress={() => toggleWishlist(product.id)}
+        onPress={toggleWishlist}
       >
         <Icon name="heart" size={32} color="#000" style={styles.iconShadow} />
-        <Icon name="heart" size={30} color={wishlist.includes(product.id) ? '#ff6666' : '#fff'} />
+        <Icon name="heart" size={30} color={wishlistState ? '#ff6666' : '#fff'} />
       </TouchableOpacity>
       <View style={styles.quantityContainer}>
         <TouchableOpacity style={styles.quantityButton} onPress={decrementQuantity}>
@@ -76,10 +83,7 @@ export default function ProductDetailScreen({ route }) {
       <TouchableOpacity style={styles.button} onPress={() => alert('Added to cart')}>
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.buyNowButton]}
-        onPress={() => navigation.navigate('CheckOutScreen', { product, quantity })}
-      >
+      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={() => alert('Proceed to buy')}>
         <Text style={styles.buttonText}>Buy Now</Text>
       </TouchableOpacity>
     </View>

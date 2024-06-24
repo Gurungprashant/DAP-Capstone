@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchProducts } from '../firebaseconfig/firebaseHelpers';
-import { useWishlist } from './WishlistContext'; // Import useWishlist hook
+import { useNavigation } from '@react-navigation/native';
+import { useWishlist } from './WishlistContext';
 
-export default function ProductScreen({ route, navigation }) {
+export default function ProductScreen({ route }) {
   const { categoryId, subCategoryId } = route.params;
   const [products, setProducts] = useState([]);
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(); // Destructure wishlist context
+  const { wishlist, toggleWishlistItem } = useWishlist();
+  const navigation = useNavigation();
 
   useEffect(() => {
     async function loadProducts() {
@@ -43,16 +45,18 @@ export default function ProductScreen({ route, navigation }) {
     );
   };
 
-  const toggleWishlist = (product) => {
-    if (wishlist.some(item => item.id === product.id)) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product);
-    }
+  const isInWishlist = (productId) => {
+    return wishlist && Array.isArray(wishlist) ? wishlist.some(item => item.productId === productId) : false;
   };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.wishlistButton}
+        onPress={() => navigation.navigate('WishListTab')}
+      >
+        <Text style={styles.wishlistButtonText}>Go to Wishlist</Text>
+      </TouchableOpacity>
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
@@ -63,16 +67,16 @@ export default function ProductScreen({ route, navigation }) {
             <View style={styles.imageContainer}>
               {item.imageUrl && item.imageUrl.length > 0 && renderImageSlider(item.imageUrl)}
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}>
+            <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item, categoryId, subCategoryId })}>
               <Text style={styles.productText}>{item.name}</Text>
             </TouchableOpacity>
             <Text style={styles.productPrice}>${item.price}</Text>
             <TouchableOpacity
               style={styles.wishlistIcon}
-              onPress={() => toggleWishlist(item)}
+              onPress={() => toggleWishlistItem({ categoryId, subCategoryId, productId: item.id })}
             >
               <Icon name="heart" size={22} color="#000" style={styles.iconShadow} />
-              <Icon name="heart" size={20} color={wishlist.some(wish => wish.id === item.id) ? '#ff6666' : '#fff'} />
+              <Icon name="heart" size={20} color={isInWishlist(item.id) ? '#ff6666' : '#fff'} />
             </TouchableOpacity>
           </View>
         )}
@@ -87,6 +91,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 10,
+  },
+  wishlistButton: {
+    backgroundColor: '#ff6666',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  wishlistButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
   flatListContainer: {
     justifyContent: 'space-between',
