@@ -40,7 +40,6 @@ export default function WishListScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Wish List</Text>
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}

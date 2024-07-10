@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useWishlist } from './WishlistContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProductDetailScreen({ route }) {
   const { product, categoryId, subCategoryId } = route.params;
   const [quantity, setQuantity] = useState(1);
   const { wishlist, toggleWishlistItem } = useWishlist();
   const [wishlistState, setWishlistState] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (wishlist) {
@@ -51,6 +53,15 @@ export default function ProductDetailScreen({ route }) {
     setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
   };
 
+  const handleBuyNow = () => {
+    navigation.navigate('CheckOutScreen', {
+      product,
+      quantity,
+      categoryId,
+      subCategoryId
+    });
+  };
+
   return (
     <View style={styles.container}>
       {product.imageUrl && product.imageUrl.length > 0 && renderImageSlider(product.imageUrl)}
@@ -83,7 +94,7 @@ export default function ProductDetailScreen({ route }) {
       <TouchableOpacity style={styles.button} onPress={() => alert('Added to cart')}>
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={() => alert('Proceed to buy')}>
+      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={handleBuyNow}>
         <Text style={styles.buttonText}>Buy Now</Text>
       </TouchableOpacity>
     </View>
