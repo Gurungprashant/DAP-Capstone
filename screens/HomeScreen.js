@@ -30,7 +30,6 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    // Scroll to the next image every 3 seconds
     const interval = setInterval(() => {
       if (currentIndex < images.length - 1) {
         scrollViewRef.current.scrollTo({
