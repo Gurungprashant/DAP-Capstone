@@ -1,42 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { fetchCartItems } from '../firebaseconfig/firebaseHelpers'; // Import fetchCartItems function
+// CartScreen.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { fetchCartItems } from '../firebaseconfig/firebaseHelpers';
+import { auth } from '../firebaseconfig/firebaseConfig'; // Import Firebase auth
 
-const CartScreen = () => {
-  const [cart, setCart] = useState([]);
-  const userId = 'userId1'; // Replace with actual user ID
+export default function CartScreen() {
+  const [cartItems, setCartItems] = useState([]);
+  const user = auth.currentUser; // Get the current user
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const cartItems = await fetchCartItems(userId);
-        setCart(cartItems);
-      } catch (error) {
-        console.error('Error fetching cart items:', error);
-      }
-    };
+    if (user) {
+      const loadCartItems = async () => {
+        try {
+          const items = await fetchCartItems(user.uid);
+          setCartItems(items);
+        } catch (error) {
+          console.error('Error fetching cart items:', error);
+        }
+      };
+      loadCartItems();
+    } else {
+      console.log('No user logged in');
+    }
+  }, [user]);
 
-    fetchItems();
-  }, []);
-
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.name}</Text>
-      <Text style={styles.itemText}>${item.price}</Text>
-      <Text style={styles.itemText}>Quantity: {item.quantity}</Text>
+  const renderCartItem = ({ item }) => (
+    <View style={styles.cartItem}>
+      <Text style={styles.itemName}>{item.name}</Text>
+      <Text style={styles.itemPrice}>${item.price}</Text>
+      <Text style={styles.itemQuantity}>Quantity: {item.quantity}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {cart.length === 0 ? (
-        <Text style={styles.emptyText}>Your cart is empty</Text>
-      ) : (
+      <Text style={styles.title}>Cart</Text>
+      {user ? (
         <FlatList
-          data={cart}
-          renderItem={renderItem}
+          data={cartItems}
+          renderItem={renderCartItem}
           keyExtractor={(item) => item.id}
         />
+      ) : (
+        <Text style={styles.noUserText}>Please log in to view your cart.</Text>
       )}
     </View>
   );
@@ -45,24 +51,35 @@ const CartScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
     padding: 20,
-    backgroundColor: '#fff',
   },
-  emptyText: {
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  cartItem: {
+    marginBottom: 15,
+    padding: 15,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+  },
+  itemName: {
     fontSize: 18,
-    textAlign: 'center',
-    marginTop: 20,
+    fontWeight: 'bold',
   },
-  itemContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 10,
-  },
-  itemText: {
+  itemPrice: {
     fontSize: 16,
-    marginBottom: 5,
+    color: '#888',
+  },
+  itemQuantity: {
+    fontSize: 16,
+    color: '#666',
+  },
+  noUserText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });
-
-export default CartScreen;

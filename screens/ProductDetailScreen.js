@@ -1,9 +1,11 @@
+// ProductDetailScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useWishlist } from './WishlistContext';
 import { useNavigation } from '@react-navigation/native';
-import { addToCart } from '../firebaseconfig/firebaseHelpers';  // Import addToCart function
+import { addToCart } from '../firebaseconfig/firebaseHelpers';
+import { auth } from '../firebaseconfig/firebaseConfig'; // Import Firebase auth
 
 export default function ProductDetailScreen({ route }) {
   const { product, categoryId, subCategoryId } = route.params;
@@ -11,6 +13,7 @@ export default function ProductDetailScreen({ route }) {
   const { wishlist, toggleWishlistItem } = useWishlist();
   const [wishlistState, setWishlistState] = useState(false);
   const navigation = useNavigation();
+  const user = auth.currentUser; // Get the current user
 
   useEffect(() => {
     if (wishlist) {
@@ -55,9 +58,25 @@ export default function ProductDetailScreen({ route }) {
   };
 
   const handleAddToCart = async () => {
-    const userId = 'userId1'; // Replace with actual user ID
-    await addToCart(userId, { ...product, quantity });
-    alert('Added to cart');
+    if (user) {
+      try {
+        await addToCart(user.uid, {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+          categoryId,
+          subCategoryId,
+          imageUrl: product.imageUrl,
+        });
+        alert('Added to cart');
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        alert('Failed to add to cart.');
+      }
+    } else {
+      alert('You need to be logged in to add items to the cart.');
+    }
   };
 
   const handleBuyNow = () => {
@@ -65,7 +84,7 @@ export default function ProductDetailScreen({ route }) {
       product,
       quantity,
       categoryId,
-      subCategoryId
+      subCategoryId,
     });
   };
 
