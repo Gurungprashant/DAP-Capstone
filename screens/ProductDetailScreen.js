@@ -1,11 +1,10 @@
-// ProductDetailScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useWishlist } from './WishlistContext';
 import { useNavigation } from '@react-navigation/native';
 import { addToCart } from '../firebaseconfig/firebaseHelpers';
-import { auth } from '../firebaseconfig/firebaseConfig'; // Import Firebase auth
+import { auth } from '../firebaseconfig/firebaseConfig';
 
 export default function ProductDetailScreen({ route }) {
   const { product, categoryId, subCategoryId } = route.params;
@@ -13,7 +12,7 @@ export default function ProductDetailScreen({ route }) {
   const { wishlist, toggleWishlistItem } = useWishlist();
   const [wishlistState, setWishlistState] = useState(false);
   const navigation = useNavigation();
-  const user = auth.currentUser; // Get the current user
+  const user = auth.currentUser;
 
   useEffect(() => {
     if (wishlist) {
@@ -31,6 +30,14 @@ export default function ProductDetailScreen({ route }) {
   };
 
   const renderImageSlider = (images) => {
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return (
+        <View style={styles.imageSlider}>
+          <Text>No images available</Text>
+        </View>
+      );
+    }
+  
     return (
       <ScrollView
         horizontal
@@ -48,6 +55,9 @@ export default function ProductDetailScreen({ route }) {
       </ScrollView>
     );
   };
+  
+        
+  
 
   const incrementQuantity = () => {
     setQuantity((prevQuantity) => prevQuantity + 1);
@@ -67,7 +77,7 @@ export default function ProductDetailScreen({ route }) {
           quantity,
           categoryId,
           subCategoryId,
-          imageUrl: product.imageUrl,
+          imageUrl: product.imageUrl && product.imageUrl.length > 0 ? product.imageUrl : 'https://via.placeholder.com/80', // Ensure imageUrl is defined
         });
         alert('Added to cart');
       } catch (error) {
@@ -88,9 +98,13 @@ export default function ProductDetailScreen({ route }) {
     });
   };
 
+  const navigateToCart = () => {
+    navigation.navigate('CartTab');
+  };
+
   return (
     <View style={styles.container}>
-      {product.imageUrl && product.imageUrl.length > 0 && renderImageSlider(product.imageUrl)}
+      {product.imageUrl && renderImageSlider(product.imageUrl)}
       <View style={styles.detailsContainer}>
         <Text style={styles.productName}>{product.name}</Text>
         <Text style={styles.productPrice}>${product.price}</Text>
@@ -102,6 +116,12 @@ export default function ProductDetailScreen({ route }) {
       >
         <Icon name="heart" size={32} color="#000" style={styles.iconShadow} />
         <Icon name="heart" size={30} color={wishlistState ? '#ff6666' : '#fff'} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.cartIcon}
+        onPress={navigateToCart}
+      >
+        <Icon name="shopping-cart" size={32} color="#000" style={styles.iconShadow} />
       </TouchableOpacity>
       <View style={styles.quantityContainer}>
         <TouchableOpacity style={styles.quantityButton} onPress={decrementQuantity}>
@@ -161,6 +181,12 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   wishlistIcon: {
+    position: 'absolute',
+    top: 20,
+    right: 70,
+    zIndex: 10,
+  },
+  cartIcon: {
     position: 'absolute',
     top: 20,
     right: 20,

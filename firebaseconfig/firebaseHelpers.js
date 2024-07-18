@@ -1,4 +1,4 @@
-import {  collection, doc, setDoc, getDocs, getDoc , updateDoc, increment } from 'firebase/firestore';
+import {  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
 // Function to fetch products
@@ -105,41 +105,50 @@ export const fetchImages = async () => {
   }
 };
 
-export const addToCart = async (userId, product) => {
+export const fetchCartItems = async (userId, setCartItems) => {
   try {
-    const cartRef = doc(db, 'carts', userId);
-    const itemRef = doc(cartRef, 'items', product.id);
+    const unsubscribe = onSnapshot(collection(db, `carts/${userId}/items`), (querySnapshot) => {
+      const items = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setCartItems(items);
+    });
 
-    await setDoc(itemRef, {
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: product.quantity || 1,
-      categoryId: product.categoryId,
-      subCategoryId: product.subCategoryId,
-      imageUrl: product.imageUrl || [],
-    }, { merge: true });
-    console.log('Item added to cart:', product);
+    return unsubscribe; // Return unsubscribe function to stop listening later
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    throw error;
+  }
+};
+
+
+// Function to add or update cart item
+export const addToCart = async (userId, item) => {
+  try {
+    const cartItemRef = doc(db, `carts/${userId}/items`, item.id);
+    await setDoc(cartItemRef, item);
   } catch (error) {
     console.error('Error adding to cart:', error);
     throw error;
   }
 };
 
-// Function to fetch cart items
-export const fetchCartItems = async (userId) => {
+// Function to update cart item quantity
+export const updateCartItemQuantity = async (userId, itemId, quantity) => {
   try {
-    const cartItemsRef = collection(db, `carts/${userId}/items`);
-    const querySnapshot = await getDocs(cartItemsRef);
-    const cartItems = [];
-    
-    querySnapshot.forEach((doc) => {
-      cartItems.push({ id: doc.id, ...doc.data() });
-    });
-    console.log('Fetched cart items:', cartItems);
-    return cartItems;
+    const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
+    await updateDoc(cartItemRef, { quantity });
   } catch (error) {
-    console.error('Error fetching cart items:', error);
-    throw error; // Throw the error for handling in the component
+    console.error('Error updating cart item quantity:', error);
+    throw error;
+  }
+};
+
+// Function to delete cart item
+export const deleteCartItem = async (userId, itemId) => {
+  try {
+    const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
+    await deleteDoc(cartItemRef);
+  } catch (error) {
+    console.error('Error deleting cart item:', error);
+    throw error;
   }
 };
