@@ -103,7 +103,7 @@ export default function CartScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cart</Text>
+   
       {user ? (
         <FlatList
           data={cartItems}
@@ -120,20 +120,23 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f5f5f5',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
+
   cartItem: {
     flexDirection: 'row',
-    marginBottom: 15,
-    padding: 15,
-    backgroundColor: '#f8f8f8',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    padding: 10,
+    marginBottom: 10,
     borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   itemImage: {
     width: 80,
@@ -146,11 +149,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   itemName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   itemPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
   },
   quantityContainer: {
@@ -159,7 +162,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   itemQuantity: {
-    fontSize: 16,
+    fontSize: 18,
     marginHorizontal: 10,
   },
   deleteButton: {
