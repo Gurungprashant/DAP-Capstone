@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
+    marginBottom: 20
   },
   itemImage: {
     width: 80,
@@ -167,7 +168,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     justifyContent: 'center',
-    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 20
   },
   noUserText: {
     fontSize: 16,
