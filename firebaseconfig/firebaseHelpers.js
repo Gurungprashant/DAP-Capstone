@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
 // Function to fetch products
@@ -101,6 +101,39 @@ export const fetchImages = async () => {
     return images;
   } catch (error) {
     console.error('Error fetching images:', error); // Log any errors
+    throw error;
+  }
+};
+
+// Function to add item to cart
+export const addToCart = async (userId, product) => {
+  const cartRef = doc(db, 'carts', userId);
+  const itemRef = doc(cartRef, 'items', product.id);
+
+  try {
+    await setDoc(itemRef, {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: increment(1),
+      categoryId: product.categoryId,
+      subCategoryId: product.subCategoryId,
+    }, { merge: true });
+  } catch (error) {
+    console.error('Error adding item to cart:', error);
+    throw error;
+  }
+};
+
+// Function to fetch cart items
+export const fetchCartItems = async (userId) => {
+  try {
+    const cartRef = collection(db, 'carts', userId, 'items');
+    const querySnapshot = await getDocs(cartRef);
+    const cartItems = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return cartItems;
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
     throw error;
   }
 };

@@ -1,11 +1,43 @@
-// screens/CartScreen.js
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { fetchCartItems } from '../firebaseconfig/firebaseHelpers'; // Import fetchCartItems function
 
-export default function CartScreen() {
+const CartScreen = () => {
+  const [cart, setCart] = useState([]);
+  const userId = 'userId1'; // Replace with actual user ID
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const cartItems = await fetchCartItems(userId);
+        setCart(cartItems);
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemText}>{item.name}</Text>
+      <Text style={styles.itemText}>${item.price}</Text>
+      <Text style={styles.itemText}>Quantity: {item.quantity}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cart Screen</Text>
+      {cart.length === 0 ? (
+        <Text style={styles.emptyText}>Your cart is empty</Text>
+      ) : (
+        <FlatList
+          data={cart}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </View>
   );
 }
@@ -13,13 +45,24 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ff5722',
+  emptyText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  itemContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10,
+  },
+  itemText: {
+    fontSize: 16,
+    marginBottom: 5,
   },
 });
+
+export default CartScreen;

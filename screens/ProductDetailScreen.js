@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useWishlist } from './WishlistContext';
 import { useNavigation } from '@react-navigation/native';
+import { addToCart } from '../firebaseconfig/firebaseHelpers';  // Import addToCart function
 
 export default function ProductDetailScreen({ route }) {
   const { product, categoryId, subCategoryId } = route.params;
@@ -53,6 +54,12 @@ export default function ProductDetailScreen({ route }) {
     setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
   };
 
+  const handleAddToCart = async () => {
+    const userId = 'userId1'; // Replace with actual user ID
+    await addToCart(userId, { ...product, quantity });
+    alert('Added to cart');
+  };
+
   const handleBuyNow = () => {
     navigation.navigate('CheckOutScreen', {
       product,
@@ -91,7 +98,7 @@ export default function ProductDetailScreen({ route }) {
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button} onPress={() => alert('Added to cart')}>
+      <TouchableOpacity style={styles.button} onPress={handleAddToCart}>
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={handleBuyNow}>
@@ -115,82 +122,75 @@ const styles = StyleSheet.create({
   image: {
     width: 400,
     height: 400,
-    borderRadius: 20,
-    marginRight: 10,
+    borderRadius: 10,
   },
   detailsContainer: {
-    paddingHorizontal: 10,
+    marginBottom: 20,
   },
   productName: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 10,
   },
   productPrice: {
-    fontSize: 24,
-    color: '#ff6666',
+    fontSize: 20,
+    color: '#888',
     marginBottom: 10,
   },
   productDescription: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#666',
-    lineHeight: 26,
-    marginBottom: 20,
   },
   wishlistIcon: {
     position: 'absolute',
     top: 20,
     right: 20,
-    zIndex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 50,
-    height: 50,
+    zIndex: 10,
   },
   iconShadow: {
     position: 'absolute',
+    top: 0,
+    left: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  quantityInput: {
-    width: 50,
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    marginHorizontal: 10,
-    textAlign: 'center',
-    borderRadius: 5,
+    marginVertical: 10,
   },
   quantityButton: {
-    width: 50,
-    height: 40,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 5,
   },
   quantityButtonText: {
     fontSize: 20,
-    color: '#000',
+  },
+  quantityInput: {
+    width: 50,
+    textAlign: 'center',
+    fontSize: 18,
+    marginHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   button: {
     backgroundColor: '#ff6666',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 10,
+    marginVertical: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 20,
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   buyNowButton: {
-    backgroundColor: '#333',
+    backgroundColor: '#ff9933',
   },
 });
