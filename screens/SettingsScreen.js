@@ -2,65 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { getAuth } from 'firebase/auth';
+import { uploadProfileImage, fetchProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import storage from '@react-native-firebase/storage';
-
-import defaultAvatar from '../assets/avatar.png';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function SettingsScreen({ navigation }) {
-  const [profileImageUri, setProfileImageUri] = useState(defaultAvatar);
+  const [profileImageUri, setProfileImageUri] = useState('https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40');
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   useEffect(() => {
-    fetchProfileImage();
-  }, []);
-
-  const fetchProfileImage = async () => {
-    try {
-      const userId = await AsyncStorage.getItem('userId'); // Assume you have user ID stored
-      if (userId) {
-        const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
-        setProfileImageUri(url);
-      }
-    } catch (error) {
-      console.log('Error fetching profile image:', error);
+    if (user) {
+      fetchProfileImage(user.uid)
+        .then((url) => setProfileImageUri(url))
+        .catch(() => {
+          console.log('Profile image not found, using default user icon.');
+          setProfileImageUri('https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40');
+        });
     }
-  };
+  }, [user]);
 
-  const handleChoosePhoto = () => {
-    const options = {
-      mediaType: 'photo',
+  const handleChoosePhoto = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
-    };
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setProfileImageUri(source.uri);
-        await uploadImage(source.uri);
-      }
     });
-  };
-
-  const uploadImage = async (uri) => {
-    try {
-      const userId = await AsyncStorage.getItem('userId'); // Assume you have user ID stored
-      const filename = uri.substring(uri.lastIndexOf('/') + 1);
-      const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-      const task = storage().ref(`profileImages/${userId}`).putFile(uploadUri);
-
-      task.on('state_changed', snapshot => {
-        console.log('Progress:', (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-      });
-
-      await task;
-      Alert.alert('Photo uploaded!', 'Your profile photo has been uploaded to Firebase Cloud Storage!');
-    } catch (e) {
-      console.error('Error uploading image:', e);
-      Alert.alert('Error', 'There was an error uploading your photo.');
+  
+    if (!result.canceled) {
+      const { uri } = result.assets[0];
+      if (user) {
+        try {
+          // Upload the image and get the download URL
+          const downloadURL = await uploadProfileImage(user.uid, uri);
+          setProfileImageUri(downloadURL); // Update state with new profile image URL
+        } catch (error) {
+          console.error('Error uploading profile image:', error);
+        }
+      }
     }
   };
 
@@ -68,8 +47,8 @@ export default function SettingsScreen({ navigation }) {
     try {
       await AsyncStorage.clear();
       navigation.replace('SignIn');
-    } catch (e) {
-      console.error('Error clearing app data.', e);
+    } catch (error) {
+      console.error('Error clearing app data:', error);
     }
   };
 
@@ -79,7 +58,7 @@ export default function SettingsScreen({ navigation }) {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', onPress: handleSignOut },
+        { text: 'Sign Out', onPress: handleSignOut }
       ],
       { cancelable: false }
     );
@@ -88,21 +67,20 @@ export default function SettingsScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
       </View>
       <View style={styles.profileSection}>
         <Text style={styles.sectionTitle}>Edit Profile</Text>
-        <Image source={typeof profileImageUri === 'string' ? { uri: profileImageUri } : profileImageUri} style={styles.profileImage} />
+        <Image source={{ uri: profileImageUri }} style={styles.profileImage} />
         <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
           <Text style={styles.buttonText}>Change Profile Photo</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.optionContainer}>
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Account')}>
           <Text style={styles.optionText}>Account</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Security')}>
           <Text style={styles.optionText}>Security</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
@@ -129,15 +107,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    padding: 20,
     backgroundColor: '#f5f5f5',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
   },
   profileSection: {
     padding: 20,

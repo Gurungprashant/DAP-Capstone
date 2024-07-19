@@ -1,9 +1,9 @@
-//firebaseHelpers.js
-import {  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import storage from '@react-native-firebase/storage';
+import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
+import { storage } from './firebaseConfig'; // Ensure this path is correct
 
-// Function to fetch products
+// Function to fetch products from a specific category and subcategory
 export const fetchProducts = async (categoryId, subCategoryId) => {
   try {
     const productsCollection = collection(db, 'categories', categoryId, 'subcategories', subCategoryId, 'products');
@@ -63,6 +63,7 @@ export const fetchProductById = async (categoryId, subCategoryId, productId) => 
   }
 };
 
+// Function to fetch all categories
 export const fetchCategories = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'categories'));
@@ -77,6 +78,7 @@ export const fetchCategories = async () => {
   }
 };
 
+// Function to fetch subcategories for a given category
 export const fetchSubCategories = async (categoryId) => {
   try {
     const subCategoryCollection = collection(db, 'categories', categoryId, 'subcategories');
@@ -92,6 +94,7 @@ export const fetchSubCategories = async (categoryId) => {
   }
 };
 
+// Function to fetch images from the 'images' collection
 export const fetchImages = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'images'));
@@ -107,6 +110,7 @@ export const fetchImages = async () => {
   }
 };
 
+// Function to fetch cart items for a specific user with real-time updates
 export const fetchCartItems = async (userId, setCartItems) => {
   try {
     const unsubscribe = onSnapshot(collection(db, `carts/${userId}/items`), (querySnapshot) => {
@@ -121,8 +125,7 @@ export const fetchCartItems = async (userId, setCartItems) => {
   }
 };
 
-
-// Function to add or update cart item
+// Function to add or update an item in the cart
 export const addToCart = async (userId, item) => {
   try {
     const cartItemRef = doc(db, `carts/${userId}/items`, item.id);
@@ -133,7 +136,7 @@ export const addToCart = async (userId, item) => {
   }
 };
 
-// Function to update cart item quantity
+// Function to update the quantity of a cart item
 export const updateCartItemQuantity = async (userId, itemId, quantity) => {
   try {
     const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
@@ -144,7 +147,7 @@ export const updateCartItemQuantity = async (userId, itemId, quantity) => {
   }
 };
 
-// Function to delete cart item
+// Function to delete an item from the cart
 export const deleteCartItem = async (userId, itemId) => {
   try {
     const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
@@ -155,31 +158,27 @@ export const deleteCartItem = async (userId, itemId) => {
   }
 };
 
+// Function to upload a profile image to Firebase Storage
 export const uploadProfileImage = async (userId, uri) => {
   try {
-    const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-    const task = storage().ref(`profileImages/${userId}`).putFile(uploadUri);
-
-    task.on('state_changed', snapshot => {
-      console.log('Progress:', (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-    });
-
-    await task;
-    const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
-    return url;
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const imageRef = ref(storage, `profileImages/${userId}`);
+    await uploadBytes(imageRef, blob);
+    return await getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading profile image:', error);
     throw error;
   }
 };
 
+// Function to fetch the profile image URL for a user
 export const fetchProfileImage = async (userId) => {
   try {
-    const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
-    return url;
+    const imageRef = ref(storage, `profileImages/${userId}`);
+    return await getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error fetching profile image:', error);
-    throw error;
+    throw new Error('Profile image not found');
   }
 };
