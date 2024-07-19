@@ -1,30 +1,67 @@
-
-//screens/SettingsScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import storage from '@react-native-firebase/storage';
+
+import defaultAvatar from '../assets/avatar.png';
 
 export default function SettingsScreen({ navigation }) {
-  const [profileImageUri, setProfileImageUri] = useState('https://via.placeholder.com/150');
+  const [profileImageUri, setProfileImageUri] = useState(defaultAvatar);
+
+  useEffect(() => {
+    fetchProfileImage();
+  }, []);
+
+  const fetchProfileImage = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId'); // Assume you have user ID stored
+      if (userId) {
+        const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
+        setProfileImageUri(url);
+      }
+    } catch (error) {
+      console.log('Error fetching profile image:', error);
+    }
+  };
 
   const handleChoosePhoto = () => {
     const options = {
       mediaType: 'photo',
-      quality: 1
+      quality: 1,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
       } else {
         const source = { uri: response.assets[0].uri };
         setProfileImageUri(source.uri);
+        await uploadImage(source.uri);
       }
     });
+  };
+
+  const uploadImage = async (uri) => {
+    try {
+      const userId = await AsyncStorage.getItem('userId'); // Assume you have user ID stored
+      const filename = uri.substring(uri.lastIndexOf('/') + 1);
+      const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+      const task = storage().ref(`profileImages/${userId}`).putFile(uploadUri);
+
+      task.on('state_changed', snapshot => {
+        console.log('Progress:', (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      });
+
+      await task;
+      Alert.alert('Photo uploaded!', 'Your profile photo has been uploaded to Firebase Cloud Storage!');
+    } catch (e) {
+      console.error('Error uploading image:', e);
+      Alert.alert('Error', 'There was an error uploading your photo.');
+    }
   };
 
   const handleSignOut = async () => {
@@ -42,7 +79,7 @@ export default function SettingsScreen({ navigation }) {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', onPress: handleSignOut }
+        { text: 'Sign Out', onPress: handleSignOut },
       ],
       { cancelable: false }
     );
@@ -55,7 +92,7 @@ export default function SettingsScreen({ navigation }) {
       </View>
       <View style={styles.profileSection}>
         <Text style={styles.sectionTitle}>Edit Profile</Text>
-        <Image source={{ uri: profileImageUri }} style={styles.profileImage} />
+        <Image source={typeof profileImageUri === 'string' ? { uri: profileImageUri } : profileImageUri} style={styles.profileImage} />
         <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
           <Text style={styles.buttonText}>Change Profile Photo</Text>
         </TouchableOpacity>
@@ -70,10 +107,9 @@ export default function SettingsScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('HelpSupport')}>
-       <Text style={styles.optionText}>Help & Support</Text>
-        <Ionicons name="chevron-forward" size={20} color="#ff5722" />
-      </TouchableOpacity>
-
+          <Text style={styles.optionText}>Help & Support</Text>
+          <Ionicons name="chevron-forward" size={20} color="#ff5722" />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('About')}>
           <Text style={styles.optionText}>About</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
@@ -82,7 +118,6 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.optionText}>Sign Out</Text>
           <Ionicons name="log-out-outline" size={20} color="#ff5722" />
         </TouchableOpacity>
-        
       </View>
     </ScrollView>
   );

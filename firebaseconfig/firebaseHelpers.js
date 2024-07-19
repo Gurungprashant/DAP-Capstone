@@ -1,5 +1,7 @@
+//firebaseHelpers.js
 import {  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import storage from '@react-native-firebase/storage';
 
 // Function to fetch products
 export const fetchProducts = async (categoryId, subCategoryId) => {
@@ -149,6 +151,35 @@ export const deleteCartItem = async (userId, itemId) => {
     await deleteDoc(cartItemRef);
   } catch (error) {
     console.error('Error deleting cart item:', error);
+    throw error;
+  }
+};
+
+export const uploadProfileImage = async (userId, uri) => {
+  try {
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const task = storage().ref(`profileImages/${userId}`).putFile(uploadUri);
+
+    task.on('state_changed', snapshot => {
+      console.log('Progress:', (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+    });
+
+    await task;
+    const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
+    return url;
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    throw error;
+  }
+};
+
+export const fetchProfileImage = async (userId) => {
+  try {
+    const url = await storage().ref(`profileImages/${userId}`).getDownloadURL();
+    return url;
+  } catch (error) {
+    console.error('Error fetching profile image:', error);
     throw error;
   }
 };
