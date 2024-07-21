@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers';
-import { auth } from '../firebaseconfig/firebaseConfig';
+import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers'; // Adjust the import as per your file structure
+import { auth } from '../firebaseconfig/firebaseConfig'; // Adjust the import as per your file structure
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
@@ -12,7 +12,6 @@ export default function CartScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    console.log('User:', user);
     let unsubscribe = null;
 
     if (user) {
@@ -20,13 +19,11 @@ export default function CartScreen() {
         unsubscribe = await fetchCartItems(user.uid, setCartItems);
       };
       loadCartItems();
-    } else {
-      console.log('No user logged in');
     }
 
     return () => {
       if (unsubscribe) {
-        unsubscribe(); // Cleanup function to unsubscribe from real-time updates
+        unsubscribe();
       }
     };
   }, [user]);
@@ -83,14 +80,14 @@ export default function CartScreen() {
       Alert.alert('Your cart is empty', 'Add some items to your cart before checking out.');
       return;
     }
-    navigation.navigate('CheckoutScreen', { cartItems, totalPrice });
+    navigation.navigate('CheckOutScreen', { cartItems });
   };
 
   const renderCartItem = ({ item }) => {
     return (
       <View style={styles.cartItem}>
         <Image
-          source={{ uri: item.imageUrl[0] || 'https://via.placeholder.com/80' }}
+          source={{ uri: item.imageUrl && item.imageUrl[0] ? item.imageUrl[0] : 'https://via.placeholder.com/80' }}
           style={styles.itemImage}
         />
         <View style={styles.itemDetails}>
