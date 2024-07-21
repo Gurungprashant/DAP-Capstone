@@ -1,6 +1,6 @@
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
+import { ref, getDownloadURL, uploadBytes, deleteObject } from 'firebase/storage';
 import { storage } from './firebaseConfig'; // Ensure this path is correct
 
 // Function to fetch products from a specific category and subcategory
@@ -158,27 +158,47 @@ export const deleteCartItem = async (userId, itemId) => {
   }
 };
 
-// Function to upload a profile image to Firebase Storage
 export const uploadProfileImage = async (userId, uri) => {
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  const storageRef = ref(storage, `profileImages/${userId}`);
+
   try {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const imageRef = ref(storage, `profileImages/${userId}`);
-    await uploadBytes(imageRef, blob);
-    return await getDownloadURL(imageRef);
+    await uploadBytes(storageRef, blob);
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
   } catch (error) {
-    console.error('Error uploading profile image:', error);
-    throw error;
+    console.error('Error uploading image:', error);
+    throw new Error('Failed to upload image.');
   }
 };
 
-// Function to fetch the profile image URL for a user
 export const fetchProfileImage = async (userId) => {
+  const storageRef = ref(storage, `profileImages/${userId}`);
+
   try {
-    const imageRef = ref(storage, `profileImages/${userId}`);
-    return await getDownloadURL(imageRef);
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
   } catch (error) {
-    console.error('Error fetching profile image:', error);
-    throw new Error('Profile image not found');
+    if (error.code === 'storage/object-not-found') {
+      console.log('Profile image not found, using default user icon.');
+      return defaultProfileImageUrl;
+    } else {
+      console.error('Error fetching profile image:', error);
+      throw new Error('Failed to fetch profile image.');
+    }
   }
 };
+
+export const removeProfileImage = async (userId) => {
+  const storageRef = ref(storage, `profileImages/${userId}`);
+
+  try {
+    await deleteObject(storageRef);
+  } catch (error) {
+    console.error('Error removing profile image:', error);
+    throw new Error('Failed to remove profile image.');
+  }
+};
+
+export const defaultProfileImageUrl = 'https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40';

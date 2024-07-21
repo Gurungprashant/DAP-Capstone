@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers'; // Adjust the import as per your file structure
-import { auth } from '../firebaseconfig/firebaseConfig'; // Adjust the import as per your file structure
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers';
+import { auth } from '../firebaseconfig/firebaseConfig';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
 export default function CartScreen() {
   const [cartItems, setCartItems] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
   const user = auth.currentUser;
   const navigation = useNavigation();
 
   useEffect(() => {
     console.log('User:', user);
     let unsubscribe = null;
-  
+
     if (user) {
       const loadCartItems = async () => {
         unsubscribe = await fetchCartItems(user.uid, setCartItems);
@@ -22,14 +23,21 @@ export default function CartScreen() {
     } else {
       console.log('No user logged in');
     }
-  
+
     return () => {
       if (unsubscribe) {
         unsubscribe(); // Cleanup function to unsubscribe from real-time updates
       }
     };
   }, [user]);
-  
+
+  useEffect(() => {
+    const calculateTotalPrice = () => {
+      const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+      setTotalPrice(total);
+    };
+    calculateTotalPrice();
+  }, [cartItems]);
 
   const handleIncrementQuantity = async (item) => {
     try {
@@ -70,10 +78,17 @@ export default function CartScreen() {
     }
   };
 
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      Alert.alert('Your cart is empty', 'Add some items to your cart before checking out.');
+      return;
+    }
+    navigation.navigate('CheckoutScreen', { cartItems, totalPrice });
+  };
 
   const renderCartItem = ({ item }) => {
     return (
-              <View style={styles.cartItem}>
+      <View style={styles.cartItem}>
         <Image
           source={{ uri: item.imageUrl[0] || 'https://via.placeholder.com/80' }}
           style={styles.itemImage}
@@ -99,17 +114,23 @@ export default function CartScreen() {
       </View>
     );
   };
-  
 
   return (
     <View style={styles.container}>
-   
       {user ? (
-        <FlatList
-          data={cartItems}
-          renderItem={renderCartItem}
-          keyExtractor={(item) => item.id}
-        />
+        <>
+          <FlatList
+            data={cartItems}
+            renderItem={renderCartItem}
+            keyExtractor={(item) => item.id}
+          />
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: ${totalPrice.toFixed(2)}</Text>
+            <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+              <Text style={styles.checkoutButtonText}>Checkout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
       ) : (
         <Text style={styles.noUserText}>Please log in to view your cart.</Text>
       )}
@@ -123,7 +144,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 20,
   },
-
   cartItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -137,7 +157,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 20
+    marginBottom: 20,
   },
   itemImage: {
     width: 80,
@@ -169,7 +189,35 @@ const styles = StyleSheet.create({
   deleteButton: {
     justifyContent: 'center',
     paddingRight: 10,
-    paddingTop: 20
+    paddingTop: 20,
+  },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  totalText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  checkoutButton: {
+    backgroundColor: '#ff6666',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  checkoutButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
   noUserText: {
     fontSize: 16,

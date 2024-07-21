@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { getAuth } from 'firebase/auth';
-import { uploadProfileImage, fetchProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
+import { uploadProfileImage, fetchProfileImage, defaultProfileImageUrl, removeProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function SettingsScreen({ navigation }) {
-  const [profileImageUri, setProfileImageUri] = useState('https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40');
+  const [profileImageUri, setProfileImageUri] = useState(defaultProfileImageUrl);
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -18,7 +17,7 @@ export default function SettingsScreen({ navigation }) {
         .then((url) => setProfileImageUri(url))
         .catch(() => {
           console.log('Profile image not found, using default user icon.');
-          setProfileImageUri('https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40');
+          setProfileImageUri(defaultProfileImageUrl);
         });
     }
   }, [user]);
@@ -28,17 +27,27 @@ export default function SettingsScreen({ navigation }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const { uri } = result.assets[0];
       if (user) {
         try {
-          // Upload the image and get the download URL
           const downloadURL = await uploadProfileImage(user.uid, uri);
-          setProfileImageUri(downloadURL); // Update state with new profile image URL
+          setProfileImageUri(downloadURL);
         } catch (error) {
           console.error('Error uploading profile image:', error);
         }
+      }
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (user) {
+      try {
+        await removeProfileImage(user.uid);
+        setProfileImageUri(defaultProfileImageUrl);
+      } catch (error) {
+        console.error('Error removing profile image:', error);
       }
     }
   };
@@ -74,6 +83,11 @@ export default function SettingsScreen({ navigation }) {
         <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
           <Text style={styles.buttonText}>Change Profile Photo</Text>
         </TouchableOpacity>
+        {profileImageUri !== defaultProfileImageUrl && (
+          <TouchableOpacity style={styles.button} onPress={handleRemovePhoto}>
+            <Text style={styles.buttonText}>Remove Profile Photo</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.optionContainer}>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Account')}>
@@ -135,6 +149,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
+    marginBottom: 10,
   },
   buttonText: {
     color: '#fff',
