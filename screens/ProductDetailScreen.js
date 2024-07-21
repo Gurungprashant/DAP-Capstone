@@ -55,9 +55,6 @@ export default function ProductDetailScreen({ route }) {
       </ScrollView>
     );
   };
-  
-        
-  
 
   const incrementQuantity = () => {
     setQuantity((prevQuantity) => prevQuantity + 1);
@@ -73,11 +70,11 @@ export default function ProductDetailScreen({ route }) {
         await addToCart(user.uid, {
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: parseFloat(product.price) || 0,
           quantity,
           categoryId,
           subCategoryId,
-          imageUrl: product.imageUrl && product.imageUrl.length > 0 ? product.imageUrl : 'https://via.placeholder.com/80', // Ensure imageUrl is defined
+          imageUrl: product.imageUrl && product.imageUrl.length > 0 ? product.imageUrl : 'https://via.placeholder.com/80',
         });
         alert('Added to cart');
       } catch (error) {
@@ -91,10 +88,7 @@ export default function ProductDetailScreen({ route }) {
 
   const handleBuyNow = () => {
     navigation.navigate('CheckOutScreen', {
-      product,
-      quantity,
-      categoryId,
-      subCategoryId,
+      cartItems: [{ ...product, quantity }]
     });
   };
 
@@ -102,17 +96,20 @@ export default function ProductDetailScreen({ route }) {
     navigation.navigate('CartTab');
   };
 
+  const price = parseFloat(product.price) || 0;
+
   return (
     <View style={styles.container}>
       {product.imageUrl && renderImageSlider(product.imageUrl)}
       <View style={styles.detailsContainer}>
         <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.productPrice}>${product.price}</Text>
+        <Text style={styles.productPrice}>${price.toFixed(2)}</Text>
         <Text style={styles.productDescription}>{product.description}</Text>
       </View>
       <TouchableOpacity
         style={styles.wishlistIcon}
         onPress={toggleWishlist}
+        accessibilityLabel={wishlistState ? 'Remove from wishlist' : 'Add to wishlist'}
       >
         <Icon name="heart" size={32} color="#000" style={styles.iconShadow} />
         <Icon name="heart" size={30} color={wishlistState ? '#ff6666' : '#fff'} />
@@ -120,6 +117,7 @@ export default function ProductDetailScreen({ route }) {
       <TouchableOpacity
         style={styles.cartIcon}
         onPress={navigateToCart}
+        accessibilityLabel="Go to cart"
       >
         <Icon name="shopping-cart" size={32} color="#000" style={styles.iconShadow} />
       </TouchableOpacity>
@@ -132,15 +130,16 @@ export default function ProductDetailScreen({ route }) {
           keyboardType="numeric"
           value={String(quantity)}
           onChangeText={(text) => setQuantity(Number(text))}
+          accessibilityLabel="Quantity input"
         />
         <TouchableOpacity style={styles.quantityButton} onPress={incrementQuantity}>
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleAddToCart}>
+      <TouchableOpacity style={styles.button} onPress={handleAddToCart} accessibilityLabel="Add to cart">
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={handleBuyNow}>
+      <TouchableOpacity style={[styles.button, styles.buyNowButton]} onPress={handleBuyNow} accessibilityLabel="Buy Now">
         <Text style={styles.buttonText}>Buy Now</Text>
       </TouchableOpacity>
     </View>
@@ -193,9 +192,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   iconShadow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,

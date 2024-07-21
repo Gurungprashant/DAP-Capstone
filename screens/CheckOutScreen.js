@@ -1,27 +1,49 @@
+
+
+
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 
-export default function CheckOutScreen({ route }) {
-  const { product, quantity } = route.params;
+export default function CheckOutScreen() {
+  const route = useRoute();
+  const { cartItems } = route.params || [];
+
+  if (!cartItems || cartItems.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Your cart is empty. Please go back and add items to your cart.</Text>
+      </View>
+    );
+  }
+
+  const renderCartItem = (item) => {
+    const imageUrl = item.imageUrl ? item.imageUrl[0] : 'https://via.placeholder.com/150';
+    return (
+      <View key={item.id} style={styles.cartItem}>
+        <Image source={{ uri: imageUrl }} style={styles.productImage} />
+        <View style={styles.itemDetails}>
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productPrice}>${item.price}</Text>
+          <Text style={styles.productQuantity}>Quantity: {item.quantity}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const calculateTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.productContainer}>
-        {product.imageUrl && product.imageUrl.length > 0 && (
-          <Image source={{ uri: product.imageUrl[0] }} style={styles.image} />
-        )}
-        <View style={styles.detailsContainer}>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productPrice}>${product.price}</Text>
-          <Text style={styles.productQuantity}>Quantity: {quantity}</Text>
-        </View>
-      </View>
+      {cartItems.map(item => renderCartItem(item))}
       <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Total: ${product.price * quantity}</Text>
+        <Text style={styles.totalText}>Total: ${calculateTotalPrice()}</Text>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Purchase Now</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.purchaseButton} onPress={() => alert('Purchase Now')}>
-        <Text style={styles.purchaseButtonText}>Purchase Now</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -29,71 +51,57 @@ export default function CheckOutScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
     padding: 20,
-    alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  cartItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  productContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
+  productImage: {
+    width: 80,
+    height: 80,
     borderRadius: 10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
   },
-  image: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
-    marginRight: 20,
-  },
-  detailsContainer: {
+  itemDetails: {
+    marginLeft: 15,
     flex: 1,
   },
   productName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
   },
   productPrice: {
-    fontSize: 18,
-    color: '#ff6666',
-    marginBottom: 10,
+    fontSize: 16,
+    color: '#888',
   },
   productQuantity: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 10,
   },
   totalContainer: {
-    width: '100%',
     marginTop: 20,
-    marginBottom: 20,
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   totalText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ff6666',
   },
-  purchaseButton: {
+  button: {
     backgroundColor: '#ff6666',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    width: '100%',
+    marginTop: 10,
   },
-  purchaseButtonText: {
-    color: '#fff',
-    fontSize: 20,
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#ff0000',
+    textAlign: 'center',
   },
 });
