@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { getAuth, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { showMessage } from 'react-native-flash-message';
 
@@ -54,7 +54,7 @@ const ChangePasswordScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <Text style={styles.label}>Current Password:</Text>
+      <Text style={styles.label}>Current Password</Text>
       <TextInput
         style={styles.input}
         secureTextEntry
@@ -62,7 +62,7 @@ const ChangePasswordScreen = ({ navigation }) => {
         onChangeText={setCurrentPassword}
         placeholder="Enter your current password"
       />
-      <Text style={styles.label}>New Password:</Text>
+      <Text style={styles.label}>New Password</Text>
       <TextInput
         style={styles.input}
         secureTextEntry
@@ -70,7 +70,9 @@ const ChangePasswordScreen = ({ navigation }) => {
         onChangeText={setNewPassword}
         placeholder="Enter your new password"
       />
-      <Button title="Change Password" onPress={handleChangePassword} />
+      <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
+        <Text style={styles.buttonText}>Change Password</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -79,23 +81,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   label: {
-    fontSize: 18,
-    marginVertical: 10,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
   },
   input: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
     fontSize: 16,
-    paddingVertical: 8,
+    backgroundColor: '#fff',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#ff5722',
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
   errorText: {
-    color: 'red',
-    marginBottom: 10,
+    color: '#d32f2f',
     fontSize: 16,
+    marginBottom: 20,
   },
 });
 
