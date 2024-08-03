@@ -1,24 +1,30 @@
+// SettingsScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
-import { uploadProfileImage, fetchProfileImage, defaultProfileImageUrl, removeProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
+import { fetchProfileImage, defaultProfileImageUrl } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function SettingsScreen({ navigation }) {
   const [profileImageUri, setProfileImageUri] = useState(defaultProfileImageUrl);
+  const [fullName, setFullName] = useState('');
   const auth = getAuth();
   const user = auth.currentUser;
 
   useEffect(() => {
     if (user) {
+      // Fetch profile image URL
       fetchProfileImage(user.uid)
         .then((url) => setProfileImageUri(url))
         .catch(() => {
           console.log('Profile image not found, using default user icon.');
           setProfileImageUri(defaultProfileImageUrl);
         });
+
+      // Fetch full name
+      setFullName(user.displayName || 'No Name');
     }
   }, [user]);
 
@@ -78,8 +84,10 @@ export default function SettingsScreen({ navigation }) {
       <View style={styles.header}>
       </View>
       <View style={styles.profileSection}>
-        <Text style={styles.sectionTitle}>Edit Profile</Text>
         <Image source={{ uri: profileImageUri }} style={styles.profileImage} />
+        <View style={styles.profileInfo}>
+          <Text style={styles.userName}>{fullName}</Text>
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
           <Text style={styles.buttonText}>Change Profile Photo</Text>
         </TouchableOpacity>
@@ -94,8 +102,8 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.optionText}>Account</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Security')}>
-          <Text style={styles.optionText}>Security</Text>
+        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('ChangePassword')}>
+          <Text style={styles.optionText}>Password Settings</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('HelpSupport')}>
@@ -131,11 +139,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   profileImage: {
     width: 120,
     height: 120,
@@ -143,6 +146,15 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: '#fff',
     marginBottom: 10,
+  },
+  profileInfo: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
   },
   button: {
     backgroundColor: '#ff5722',

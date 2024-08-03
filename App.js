@@ -1,4 +1,4 @@
-//App.js
+// App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,6 +18,7 @@ import CategoryScreen from './screens/CategoryScreen';
 import ProductScreen from './screens/ProductScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 import CheckOutScreen from './screens/CheckOutScreen';
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import { WishlistProvider } from './screens/WishlistContext'; 
 
 const Stack = createNativeStackNavigator();
@@ -69,6 +70,7 @@ export default function App() {
           <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />
           <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change Password' }} />
         </Stack.Navigator>
         <FlashMessage position="top" />
       </NavigationContainer>
