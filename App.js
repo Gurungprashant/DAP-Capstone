@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -12,6 +12,7 @@ import CartScreen from './screens/CartScreen';
 import HelpSupportScreen from './screens/HelpSupportScreen';
 import AboutScreen from './screens/AboutScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import NotificationSetupScreen from './screens/NotificationSetupScreen';
 import WishListScreen from './screens/WishListScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import CategoryScreen from './screens/CategoryScreen';
@@ -23,6 +24,7 @@ import OrderHistoryScreen from './screens/OrderHistoryScreen';
 import OrderDetailScreen from './screens/OrderDetailScreen';
 import { WishlistProvider } from './screens/WishlistContext';
 import { CartProvider } from './screens/CartContext';  
+import * as Notifications from 'expo-notifications';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +62,16 @@ function MainTabNavigator() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const getNotificationPermissions = async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') {
+        await Notifications.requestPermissionsAsync();
+      }
+    };
+    getNotificationPermissions();
+  }, []);
+
   return (
     <WishlistProvider>
       <CartProvider>
@@ -78,6 +90,7 @@ export default function App() {
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change Password' }} />
             <Stack.Screen name="OrderHistoryScreen" component={OrderHistoryScreen} />
             <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} />
+            <Stack.Screen name="NotificationSetupScreen" component={NotificationSetupScreen} />
           </Stack.Navigator>
           <FlashMessage position="top" />
         </NavigationContainer>
