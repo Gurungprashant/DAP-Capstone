@@ -1,7 +1,7 @@
-import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
-import { db } from './firebaseConfig';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, addDoc, getFirestore, writeBatch } from 'firebase/firestore';
 import { ref, getDownloadURL, uploadBytes, deleteObject } from 'firebase/storage';
-import { storage } from './firebaseConfig'; // Ensure this path is correct
+import { db } from './firebaseConfig';
+import { storage } from './firebaseConfig'; 
 
 // Function to fetch products from a specific category and subcategory
 export const fetchProducts = async (categoryId, subCategoryId) => {
@@ -147,6 +147,7 @@ export const updateCartItemQuantity = async (userId, itemId, quantity) => {
   }
 };
 
+
 // Function to delete an item from the cart
 export const deleteCartItem = async (userId, itemId) => {
   try {
@@ -158,6 +159,24 @@ export const deleteCartItem = async (userId, itemId) => {
   }
 };
 
+export const removePurchasedItemsFromCart = async (userId, cartItems) => {
+  const db = getFirestore(); // Initialize Firestore
+  const batch = writeBatch(db); // Create a batch
+
+  cartItems.forEach(item => {
+    const itemRef = doc(db, `carts/${userId}/items`, item.id); // Reference to each item document
+    batch.delete(itemRef); // Add delete operation to the batch
+  });
+
+  try {
+    await batch.commit(); // Commit the batch
+    console.log('Successfully removed purchased items from cart');
+  } catch (error) {
+    console.error('Error removing purchased items from cart:', error);
+  }
+};
+
+// Function to upload profile image
 export const uploadProfileImage = async (userId, uri) => {
   const response = await fetch(uri);
   const blob = await response.blob();
@@ -173,6 +192,7 @@ export const uploadProfileImage = async (userId, uri) => {
   }
 };
 
+// Function to fetch profile image
 export const fetchProfileImage = async (userId) => {
   const storageRef = ref(storage, `profileImages/${userId}`);
 
@@ -190,6 +210,7 @@ export const fetchProfileImage = async (userId) => {
   }
 };
 
+// Function to remove profile image
 export const removeProfileImage = async (userId) => {
   const storageRef = ref(storage, `profileImages/${userId}`);
 
@@ -201,4 +222,39 @@ export const removeProfileImage = async (userId) => {
   }
 };
 
+// Function to fetch order history for a specific user
+export const fetchOrderHistory = async (userId) => {
+  try {
+    const ordersCollection = collection(db, 'orders');
+    const querySnapshot = await getDocs(ordersCollection);
+    const orders = [];
+    querySnapshot.forEach((doc) => {
+      if (doc.data().userId === userId) {
+        orders.push({ id: doc.id, ...doc.data() });
+      }
+    });
+    return orders;
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+    throw error;
+  }
+};
+
+export const saveOrderToFirebase = async (userId, orderDetails) => {
+  try {
+    const ordersCollection = collection(db, 'orders');
+    await addDoc(ordersCollection, {
+      userId,
+      items: orderDetails.items,
+      total: orderDetails.total,
+      date: new Date().toISOString(), // Save the current date and time
+    });
+  } catch (error) {
+    console.error('Error saving order to Firebase:', error);
+    throw new Error('Failed to save order.');
+  }
+};
+
+
+// Default profile image URL
 export const defaultProfileImageUrl = 'https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40';

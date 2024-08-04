@@ -1,10 +1,10 @@
-// App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from 'react-native-flash-message';
+
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -19,7 +19,10 @@ import ProductScreen from './screens/ProductScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 import CheckOutScreen from './screens/CheckOutScreen';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
-import { WishlistProvider } from './screens/WishlistContext'; 
+import OrderHistoryScreen from './screens/OrderHistoryScreen';
+import OrderDetailScreen from './screens/OrderDetailScreen';
+import { WishlistProvider } from './screens/WishlistContext';
+import { CartProvider } from './screens/CartContext';  
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -59,21 +62,26 @@ function MainTabNavigator() {
 export default function App() {
   return (
     <WishlistProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="SignIn">
-          <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
-          <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-          <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections' }} />
-          <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
-          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
-          <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />
-          <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
-          <Stack.Screen name="About" component={AboutScreen} />
-          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change Password' }} />
-        </Stack.Navigator>
-        <FlashMessage position="top" />
-      </NavigationContainer>
+      <CartProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="SignIn">
+            <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In', headerShown: false }} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
+            <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen name="SubCategoryScreen" component={SubCategoryScreen} options={{ title: 'Selections' }} />
+            <Stack.Screen name="ProductScreen" component={ProductScreen} options={{ title: 'Products' }} />
+            <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
+            <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />
+            <Stack.Screen name="CartScreen" component={CartScreen} />
+            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change Password' }} />
+            <Stack.Screen name="OrderHistoryScreen" component={OrderHistoryScreen} />
+            <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} />
+          </Stack.Navigator>
+          <FlashMessage position="top" />
+        </NavigationContainer>
+      </CartProvider>
     </WishlistProvider>
   );
 }

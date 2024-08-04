@@ -1,9 +1,8 @@
-// SettingsScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
-import { fetchProfileImage, defaultProfileImageUrl } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
+import { fetchProfileImage, defaultProfileImageUrl, uploadProfileImage, removeProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -81,8 +80,6 @@ export default function SettingsScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-      </View>
       <View style={styles.profileSection}>
         <Image source={{ uri: profileImageUri }} style={styles.profileImage} />
         <View style={styles.profileInfo}>
@@ -98,12 +95,12 @@ export default function SettingsScreen({ navigation }) {
         )}
       </View>
       <View style={styles.optionContainer}>
-        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Account')}>
-          <Text style={styles.optionText}>Account</Text>
+        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('OrderHistoryScreen')}>
+          <Text style={styles.optionText}>Order History</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('ChangePassword')}>
-          <Text style={styles.optionText}>Password Settings</Text>
+          <Text style={styles.optionText}>Change Password</Text>
           <Ionicons name="chevron-forward" size={20} color="#ff5722" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('HelpSupport')}>
@@ -128,10 +125,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    backgroundColor: '#f5f5f5',
-    alignItems: 'center',
-    justifyContent: 'center',
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   profileSection: {
     padding: 20,
