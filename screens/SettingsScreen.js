@@ -1,14 +1,17 @@
+// SettingsScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
 import { fetchProfileImage, defaultProfileImageUrl, uploadProfileImage, removeProfileImage } from '../firebaseconfig/firebaseHelpers'; // Adjust path if necessary
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
 
-export default function SettingsScreen({ navigation }) {
+const SettingsScreen = () => {
   const [profileImageUri, setProfileImageUri] = useState(defaultProfileImageUrl);
   const [fullName, setFullName] = useState('');
+  const navigation = useNavigation(); // Use the hook to get navigation object
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -115,20 +118,19 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.optionText}>Sign Out</Text>
           <Ionicons name="log-out-outline" size={20} color="#ff5722" />
         </TouchableOpacity>
+        <Button
+          title="Notification Settings"
+          onPress={() => navigation.navigate('NotificationSetupScreen')}
+        />
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
   },
   profileSection: {
     padding: 20,
@@ -181,3 +183,5 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+
+export default SettingsScreen;
