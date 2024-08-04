@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers'; // Adjust the import as per your file structure
-import { auth } from '../firebaseconfig/firebaseConfig'; // Adjust the import as per your file structure
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../firebaseconfig/firebaseHelpers';
+import { auth } from '../firebaseconfig/firebaseConfig';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useCart } from './CartContext'; // Import useCart hook
 
 export default function CartScreen() {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const user = auth.currentUser;
   const navigation = useNavigation();
+  const isFocused = useIsFocused(); // Hook to detect if the screen is focused
+  const { clearCart } = useCart(); // Get clearCart from context
 
   useEffect(() => {
     let unsubscribe = null;
@@ -28,16 +31,17 @@ export default function CartScreen() {
         unsubscribe();
       }
     };
-  }, [user]);
+  }, [user, isFocused]);
 
   useEffect(() => {
     const calculateTotalPrice = () => {
-      const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-      setTotalPrice(total);
+      if (Array.isArray(cartItems)) {
+        const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        setTotalPrice(total);
+      }
     };
     calculateTotalPrice();
   }, [cartItems]);
-  
 
   const handleIncrementQuantity = async (item) => {
     try {
@@ -78,59 +82,72 @@ export default function CartScreen() {
     }
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
+  const handleCheckout = async () => {
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
       Alert.alert('Your cart is empty', 'Add some items to your cart before checking out.');
       return;
     }
-    navigation.navigate('CheckOutScreen', { cartItems });
+
+    try {
+      navigation.navigate('CheckOutScreen', { cartItems });
+    } catch (error) {
+      console.error('Error proceeding to checkout:', error);
+    }
   };
 
-
-  const renderCartItem = ({ item }) => {
-    return (
-              <View style={styles.cartItem}>
-        <Image
-          source={{ uri: item.imageUrl[0] || 'https://via.placeholder.com/80' }}
-          style={styles.itemImage}
-        />
-        <View style={styles.itemDetails}>
-          <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item, categoryId: item.categoryId, subCategoryId: item.subCategoryId })}>
-            <Text style={styles.itemName}>{item.name}</Text>
-          </TouchableOpacity>
-          <Text style={styles.itemPrice}>${item.price}</Text>
-          <View style={styles.quantityContainer}>
-            <TouchableOpacity onPress={() => handleDecrementQuantity(item)}>
-              <Icon name="minus-circle" size={24} color="#ff6666" />
-            </TouchableOpacity>
-            <Text style={styles.itemQuantity}>{item.quantity}</Text>
-            <TouchableOpacity onPress={() => handleIncrementQuantity(item)}>
-              <Icon name="plus-circle" size={24} color="#ff6666" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <TouchableOpacity onPress={() => handleDeleteItem(item.id)} style={styles.deleteButton}>
-          <Icon name="trash" size={24} color="#ff6666" />
+  const renderCartItem = ({ item }) => (
+    <View style={styles.cartItem}>
+      <Image
+        source={{ uri: item.imageUrl[0] || 'https://via.placeholder.com/80' }}
+        style={styles.itemImage}
+      />
+      <View style={styles.itemDetails}>
+        <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item, categoryId: item.categoryId, subCategoryId: item.subCategoryId })}>
+          <Text style={styles.itemName}>{item.name}</Text>
         </TouchableOpacity>
+        <Text style={styles.itemPrice}>${item.price}</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity onPress={() => handleDecrementQuantity(item)}>
+            <Icon name="minus-circle" size={24} color="#ff6666" />
+          </TouchableOpacity>
+          <Text style={styles.itemQuantity}>{item.quantity}</Text>
+          <TouchableOpacity onPress={() => handleIncrementQuantity(item)}>
+            <Icon name="plus-circle" size={24} color="#ff6666" />
+          </TouchableOpacity>
+        </View>
       </View>
-    );
-  };
-  
+      <TouchableOpacity onPress={() => handleDeleteItem(item.id)} style={styles.deleteButton}>
+        <Icon name="trash" size={24} color="#ff6666" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderEmptyCart = () => (
+    <View style={styles.emptyCartContainer}>
+      <Text style={styles.emptyCartText}>Your cart is empty</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={cartItems}
-        renderItem={renderCartItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.cartList}
-      />
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Total: ${totalPrice.toFixed(2)}</Text>
-        <TouchableOpacity style={styles.button} onPress={handleCheckout}>
-          <Text style={styles.buttonText}>Proceed to Checkout</Text>
-        </TouchableOpacity>
-      </View>
+      {cartItems.length === 0 ? (
+        renderEmptyCart()
+      ) : (
+        <>
+          <FlatList
+            data={cartItems}
+            renderItem={renderCartItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.cartList}
+          />
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: ${totalPrice.toFixed(2)}</Text>
+            <TouchableOpacity style={styles.button} onPress={handleCheckout}>
+              <Text style={styles.buttonText}>Proceed to Checkout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -141,7 +158,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 20,
   },
-
   cartItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -155,7 +171,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 20
   },
   itemImage: {
     width: 80,
@@ -189,12 +204,6 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingTop: 20
   },
-  noUserText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-
   totalContainer: {
     marginTop: 20,
     alignItems: 'center',
@@ -214,5 +223,21 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  emptyCartContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyCartImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
+  },
+  emptyCartText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#888',
   },
 });
