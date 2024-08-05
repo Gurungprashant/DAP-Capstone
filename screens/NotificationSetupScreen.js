@@ -49,7 +49,7 @@ const NotificationSetupScreen = () => {
           body: "Check out our latest hot sales and special offers!",
         },
         trigger: {
-          seconds: 1000,
+          seconds: 10,
           repeats: true,
         },
       });
