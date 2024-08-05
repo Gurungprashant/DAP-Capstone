@@ -62,15 +62,6 @@ function MainTabNavigator() {
 }
 
 export default function App() {
-  useEffect(() => {
-    const getNotificationPermissions = async () => {
-      const { status } = await Notifications.getPermissionsAsync();
-      if (status !== 'granted') {
-        await Notifications.requestPermissionsAsync();
-      }
-    };
-    getNotificationPermissions();
-  }, []);
 
   return (
     <WishlistProvider>

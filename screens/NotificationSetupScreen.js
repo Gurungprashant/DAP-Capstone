@@ -73,6 +73,16 @@ const NotificationSetupScreen = () => {
     }
   };
 
+  useEffect(() => {
+    const getNotificationPermissions = async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') {
+        await Notifications.requestPermissionsAsync();
+      }
+    };
+    getNotificationPermissions();
+  }, []);
+
   return (
     <View>
       <Text>Enable Hot Sale Notifications</Text>
