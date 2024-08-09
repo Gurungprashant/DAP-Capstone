@@ -24,7 +24,8 @@ import OrderHistoryScreen from './screens/OrderHistoryScreen';
 import OrderDetailScreen from './screens/OrderDetailScreen';
 import { WishlistProvider } from './screens/WishlistContext';
 import { CartProvider } from './screens/CartContext';  
-import * as Notifications from 'expo-notifications';
+import ProductListScreen from './screens/ProductListScreen'
+import AccountScreen from './screens/AccountScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -76,12 +77,15 @@ export default function App() {
             <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
             <Stack.Screen name="CheckOutScreen" component={CheckOutScreen} options={{ title: 'Checkout' }} />
             <Stack.Screen name="CartScreen" component={CartScreen} />
-            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <Stack.Screen name="Help & Support" component={HelpSupportScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change Password' }} />
-            <Stack.Screen name="OrderHistoryScreen" component={OrderHistoryScreen} />
-            <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} />
-            <Stack.Screen name="NotificationSetupScreen" component={NotificationSetupScreen} />
+            <Stack.Screen name="Order History" component={OrderHistoryScreen} />
+            <Stack.Screen name="Order Details" component={OrderDetailScreen} />
+            <Stack.Screen name="Notifications" component={NotificationSetupScreen}/>
+            <Stack.Screen name="ProductListScreen" component={ProductListScreen} options={{ title: 'Hot Deals' }} />
+            <Stack.Screen name="Account" component={AccountScreen} />
+            <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
           </Stack.Navigator>
           <FlashMessage position="top" />
         </NavigationContainer>

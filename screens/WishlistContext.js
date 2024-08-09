@@ -16,7 +16,7 @@ export const WishlistProvider = ({ children }) => {
         loadWishlist(user.uid);
       }
     });
-    return unsubscribe; // Cleanup subscription on unmount
+    return unsubscribe;
   }, []);
 
   const loadWishlist = async (uid) => {

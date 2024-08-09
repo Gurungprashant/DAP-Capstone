@@ -16,9 +16,8 @@ const ChangePasswordScreen = ({ navigation }) => {
   };
 
   const handleChangePassword = async () => {
-    setError(''); // Clear previous errors
+    setError('');
 
-    // Basic validation
     if (!currentPassword || !newPassword) {
       setError('Both fields are required.');
       showMessage({
@@ -84,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    fontSize: 16,
+    fontSize: 18,
     backgroundColor: '#fff',
     marginBottom: 20,
   },
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#d32f2f',
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 20,
   },
 });

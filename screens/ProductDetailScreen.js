@@ -37,22 +37,39 @@ export default function ProductDetailScreen({ route }) {
         </View>
       );
     }
-  
+
     return (
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        style={styles.imageSlider}
-      >
-        {images.map((image, index) => (
-          <Image
-            key={index}
-            source={{ uri: image }}
-            style={styles.image}
-          />
-        ))}
-      </ScrollView>
+      <View style={styles.imageSliderContainer}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          style={styles.imageSlider}
+        >
+          {images.map((image, index) => (
+            <View key={index} style={styles.imageContainer}>
+              <Image
+                source={{ uri: image }}
+                style={styles.image}
+              />
+              <TouchableOpacity
+                style={styles.wishlistIcon}
+                onPress={toggleWishlist}
+                accessibilityLabel={wishlistState ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <Icon name="heart" size={32} color={wishlistState ? '#ff6666' : '#ccc'} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+        <TouchableOpacity
+          style={styles.cartIcon}
+          onPress={navigateToCart}
+          accessibilityLabel="Go to cart"
+        >
+          <Icon name="shopping-cart" size={32} color="black" />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -102,25 +119,11 @@ export default function ProductDetailScreen({ route }) {
     <View style={styles.container}>
       {product.imageUrl && renderImageSlider(product.imageUrl)}
       <View style={styles.detailsContainer}>
-        <Text style={styles.productName}>{product.name}</Text>
+        <View style={styles.productHeader}>
+          <Text style={styles.productName}>{product.name}</Text>
+        </View>
         <Text style={styles.productPrice}>${price.toFixed(2)}</Text>
-        <Text style={styles.productDescription}>{product.description}</Text>
       </View>
-      <TouchableOpacity
-        style={styles.wishlistIcon}
-        onPress={toggleWishlist}
-        accessibilityLabel={wishlistState ? 'Remove from wishlist' : 'Add to wishlist'}
-      >
-        <Icon name="heart" size={32} color="#000" style={styles.iconShadow} />
-        <Icon name="heart" size={30} color={wishlistState ? '#ff6666' : '#fff'} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.cartIcon}
-        onPress={navigateToCart}
-        accessibilityLabel="Go to cart"
-      >
-        <Icon name="shopping-cart" size={32} color="#000" style={styles.iconShadow} />
-      </TouchableOpacity>
       <View style={styles.quantityContainer}>
         <TouchableOpacity style={styles.quantityButton} onPress={decrementQuantity}>
           <Text style={styles.quantityButtonText}>-</Text>
@@ -152,50 +155,59 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 20,
   },
+  imageSliderContainer: {
+    position: 'relative',
+    marginBottom: 20,
+  },
   imageSlider: {
     width: '100%',
     height: 400,
-    marginBottom: 20,
+  },
+  imageContainer: {
+    position: 'relative',
+    width: 370,
+    height: 400,
+    marginRight: 3,
   },
   image: {
-    width: 400,
-    height: 400,
+    width: '100%',
+    height: '100%',
     borderRadius: 10,
+  },
+  wishlistIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    padding: 5,
+    borderRadius: 20,
+  },
+  cartIcon: {
+    position: 'absolute',
+    bottom: 8,
+    right: 13,
+    zIndex: 1,
+    backgroundColor: '#ffffff',
+    padding: 5,
+    borderRadius: 20,
   },
   detailsContainer: {
     marginBottom: 20,
   },
+  productHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   productName: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
   },
   productPrice: {
     fontSize: 20,
     color: '#888',
     marginBottom: 10,
-  },
-  productDescription: {
-    fontSize: 16,
-    color: '#666',
-  },
-  wishlistIcon: {
-    position: 'absolute',
-    top: 20,
-    right: 70,
-    zIndex: 10,
-  },
-  cartIcon: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 10,
-  },
-  iconShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
   },
   quantityContainer: {
     flexDirection: 'row',

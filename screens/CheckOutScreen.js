@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { getAuth } from 'firebase/auth';
-import { saveOrderToFirebase, removePurchasedItemsFromCart } from '../firebaseconfig/firebaseHelpers'; // Adjust the import path if needed
-import { useCart } from './CartContext'; // Ensure this path is correct
+import { saveOrderToFirebase, removePurchasedItemsFromCart } from '../firebaseconfig/firebaseHelpers';
+import { useCart } from './CartContext';
 
 export default function CheckOutScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { cartItems } = route.params || {};
-  const { updateCartItems } = useCart(); // Ensure updateCartItems is defined in your CartContext
+  const { updateCartItems } = useCart();
   const [loading, setLoading] = useState(false);
 
   if (!cartItems || cartItems.length === 0) {
@@ -50,15 +50,13 @@ export default function CheckOutScreen() {
       };
 
       try {
-        // Save the order to Firebase
+
         await saveOrderToFirebase(user.uid, orderDetails);
 
-        // Remove purchased items from cart
         await removePurchasedItemsFromCart(user.uid, cartItems);
 
-        // Update cart items in context
         if (updateCartItems) {
-          updateCartItems(); // Ensure this function is correctly defined in CartContext
+          updateCartItems();
         }
 
         Alert.alert('Success', 'Purchase successful!', [
@@ -86,7 +84,6 @@ export default function CheckOutScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Order Summary</Text>
       {cartItems.map(renderCartItem)}
       <Text style={styles.totalPrice}>Total: ${calculateTotalPrice()}</Text>
       <TouchableOpacity
@@ -105,11 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
   },
   cartItem: {
     flexDirection: 'row',
@@ -134,15 +126,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
   },
   productQuantity: {
-    fontSize: 16,
+    fontSize: 18,
     marginTop: 5,
   },
   totalPrice: {
@@ -160,7 +152,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   errorText: {

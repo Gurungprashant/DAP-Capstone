@@ -2,15 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 
 export default function OrderDetailScreen({ route }) {
-  const { order } = route.params; // Get the order from route params
+  const { order } = route.params;
 
-  // Helper function to safely format price
   const formatPrice = (price) => {
     const num = typeof price === 'number' ? price : parseFloat(price);
     return !isNaN(num) ? num.toFixed(2) : 'N/A';
   };
 
-  // Function to get the first image URL from the product images
   const getFirstImageUrl = (images) => {
     return (images && Array.isArray(images) && images.length > 0) ? images[0] : null;
   };
@@ -18,7 +16,7 @@ export default function OrderDetailScreen({ route }) {
   return (
     <ScrollView style={styles.container}>
       {order.items.map((product, index) => {
-        const imageUrl = getFirstImageUrl(product.imageUrl); // Get the first image URL for the product
+        const imageUrl = getFirstImageUrl(product.imageUrl);
 
         return (
           <View key={index} style={styles.itemContainer}>
@@ -80,12 +78,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
   },
   summaryContainer: {
@@ -97,11 +95,11 @@ const styles = StyleSheet.create({
     borderTopColor: '#ddd',
   },
   orderDate: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   total: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
 });

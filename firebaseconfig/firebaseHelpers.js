@@ -3,7 +3,6 @@ import { ref, getDownloadURL, uploadBytes, deleteObject } from 'firebase/storage
 import { db } from './firebaseConfig';
 import { storage } from './firebaseConfig'; 
 
-// Function to fetch products from a specific category and subcategory
 export const fetchProducts = async (categoryId, subCategoryId) => {
   try {
     const productsCollection = collection(db, 'categories', categoryId, 'subcategories', subCategoryId, 'products');
@@ -19,7 +18,6 @@ export const fetchProducts = async (categoryId, subCategoryId) => {
   }
 };
 
-// Function to fetch user's wishlist
 export const fetchWishlist = async (userId) => {
   try {
     const docRef = doc(db, 'wishlists', userId);
@@ -35,7 +33,6 @@ export const fetchWishlist = async (userId) => {
   }
 };
 
-// Function to update user's wishlist
 export const updateWishlist = async (userId, wishlist) => {
   try {
     const filteredWishlist = wishlist.filter(item => item.categoryId && item.subCategoryId && item.productId);
@@ -47,7 +44,6 @@ export const updateWishlist = async (userId, wishlist) => {
   }
 };
 
-// Function to fetch a product by its ID, categoryId, and subCategoryId
 export const fetchProductById = async (categoryId, subCategoryId, productId) => {
   try {
     const productRef = doc(db, 'categories', categoryId, 'subcategories', subCategoryId, 'products', productId);
@@ -63,7 +59,6 @@ export const fetchProductById = async (categoryId, subCategoryId, productId) => 
   }
 };
 
-// Function to fetch all categories
 export const fetchCategories = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'categories'));
@@ -78,7 +73,6 @@ export const fetchCategories = async () => {
   }
 };
 
-// Function to fetch subcategories for a given category
 export const fetchSubCategories = async (categoryId) => {
   try {
     const subCategoryCollection = collection(db, 'categories', categoryId, 'subcategories');
@@ -94,7 +88,6 @@ export const fetchSubCategories = async (categoryId) => {
   }
 };
 
-// Function to fetch images from the 'images' collection
 export const fetchImages = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'images'));
@@ -102,15 +95,14 @@ export const fetchImages = async () => {
     querySnapshot.forEach((doc) => {
       images.push({ id: doc.id, url: doc.data().url });
     });
-    console.log('Fetched images:', images); // Log fetched images
+    console.log('Fetched images:', images);
     return images;
   } catch (error) {
-    console.error('Error fetching images:', error); // Log any errors
+    console.error('Error fetching images:', error);
     throw error;
   }
 };
 
-// Function to fetch cart items for a specific user with real-time updates
 export const fetchCartItems = async (userId, setCartItems) => {
   try {
     const unsubscribe = onSnapshot(collection(db, `carts/${userId}/items`), (querySnapshot) => {
@@ -118,25 +110,40 @@ export const fetchCartItems = async (userId, setCartItems) => {
       setCartItems(items);
     });
 
-    return unsubscribe; // Return unsubscribe function to stop listening later
+    return unsubscribe;
   } catch (error) {
     console.error('Error fetching cart items:', error);
     throw error;
   }
 };
 
-// Function to add or update an item in the cart
-export const addToCart = async (userId, item) => {
+export const addToCart = async (userId, cartItem) => {
   try {
-    const cartItemRef = doc(db, `carts/${userId}/items`, item.id);
-    await setDoc(cartItemRef, item);
+    if (!userId || !cartItem || !cartItem.id || !cartItem.name || !cartItem.price || !cartItem.quantity) {
+      throw new Error('Invalid cart item data');
+    }
+
+    const cartDocRef = doc(db, 'carts', userId);
+    const itemDocRef = doc(cartDocRef, 'items', cartItem.id);
+
+    const cartItemData = {
+      id: cartItem.id || '',
+      name: cartItem.name || '',
+      price: parseFloat(cartItem.price) || 0,
+      quantity: cartItem.quantity || 1,
+      categoryId: cartItem.categoryId || null,
+      subCategoryId: cartItem.subCategoryId || null,
+      imageUrl: cartItem.imageUrl || 'https://via.placeholder.com/80',
+    };
+
+    await setDoc(itemDocRef, cartItemData, { merge: true });
+    console.log('Cart item added successfully');
   } catch (error) {
     console.error('Error adding to cart:', error);
     throw error;
   }
 };
 
-// Function to update the quantity of a cart item
 export const updateCartItemQuantity = async (userId, itemId, quantity) => {
   try {
     const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
@@ -148,7 +155,6 @@ export const updateCartItemQuantity = async (userId, itemId, quantity) => {
 };
 
 
-// Function to delete an item from the cart
 export const deleteCartItem = async (userId, itemId) => {
   try {
     const cartItemRef = doc(db, `carts/${userId}/items`, itemId);
@@ -160,23 +166,22 @@ export const deleteCartItem = async (userId, itemId) => {
 };
 
 export const removePurchasedItemsFromCart = async (userId, cartItems) => {
-  const db = getFirestore(); // Initialize Firestore
-  const batch = writeBatch(db); // Create a batch
+  const db = getFirestore();
+  const batch = writeBatch(db);
 
   cartItems.forEach(item => {
-    const itemRef = doc(db, `carts/${userId}/items`, item.id); // Reference to each item document
-    batch.delete(itemRef); // Add delete operation to the batch
+    const itemRef = doc(db, `carts/${userId}/items`, item.id);
+    batch.delete(itemRef);
   });
 
   try {
-    await batch.commit(); // Commit the batch
+    await batch.commit();
     console.log('Successfully removed purchased items from cart');
   } catch (error) {
     console.error('Error removing purchased items from cart:', error);
   }
 };
 
-// Function to upload profile image
 export const uploadProfileImage = async (userId, uri) => {
   const response = await fetch(uri);
   const blob = await response.blob();
@@ -192,7 +197,6 @@ export const uploadProfileImage = async (userId, uri) => {
   }
 };
 
-// Function to fetch profile image
 export const fetchProfileImage = async (userId) => {
   const storageRef = ref(storage, `profileImages/${userId}`);
 
@@ -210,7 +214,6 @@ export const fetchProfileImage = async (userId) => {
   }
 };
 
-// Function to remove profile image
 export const removeProfileImage = async (userId) => {
   const storageRef = ref(storage, `profileImages/${userId}`);
 
@@ -222,7 +225,6 @@ export const removeProfileImage = async (userId) => {
   }
 };
 
-// Function to fetch order history for a specific user
 export const fetchOrderHistory = async (userId) => {
   try {
     const ordersCollection = collection(db, 'orders');
@@ -247,7 +249,7 @@ export const saveOrderToFirebase = async (userId, orderDetails) => {
       userId,
       items: orderDetails.items,
       total: orderDetails.total,
-      date: new Date().toISOString(), // Save the current date and time
+      date: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error saving order to Firebase:', error);
@@ -256,5 +258,74 @@ export const saveOrderToFirebase = async (userId, orderDetails) => {
 };
 
 
-// Default profile image URL
+export async function fetchNewOffers() {
+  try {
+    const offersCollection = collection(db, 'newOffers');
+    const offersSnapshot = await getDocs(offersCollection);
+    const offersList = offersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return offersList;
+  } catch (error) {
+    console.error('Error fetching new offers:', error);
+    throw error;
+  }
+}
+
+export async function fetchProductsByOfferId(offerId) {
+  try {
+
+    const offerDoc = await getDoc(doc(db, 'newOffers', offerId));
+    const offerData = offerDoc.data();
+
+    if (!offerData || !Array.isArray(offerData.products)) {
+      console.warn('No products found for the offer ID:', offerId);
+      return [];
+    }
+
+    const productIds = offerData.products;
+    const productsCollection = collection(db, 'products');
+
+    const productQueries = productIds.map(productId => 
+      doc(productsCollection, productId)
+    );
+
+    const productSnapshots = await Promise.all(productQueries.map(docRef => getDoc(docRef)));
+
+    const productsList = productSnapshots.map(snapshot => {
+      if (snapshot.exists()) {
+        return {
+          id: snapshot.id,
+          ...snapshot.data(),
+        };
+      } else {
+        console.warn('Product not found:', snapshot.id);
+        return null;
+      }
+    }).filter(product => product !== null);
+
+    return productsList;
+  } catch (error) {
+    console.error('Error fetching products by offer ID:', error);
+    throw error;
+  }
+}
+
+export async function retrieveProducts() {
+  try {
+    const productsSnapshot = await getDocs(collection(db, 'products'));
+    const productsList = productsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        imageUrl: Array.isArray(data.imageUrl) && data.imageUrl.length > 0 ? data.imageUrl[0] : null,
+      };
+    });
+    console.log('Fetched Products:', productsList);
+    return productsList;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
 export const defaultProfileImageUrl = 'https://firebasestorage.googleapis.com/v0/b/capstone-project-1234f.appspot.com/o/defaultUserImage%2Fdefault-profile.png?alt=media&token=18cb2658-1ac2-4056-816c-5fb865c23d40';

@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#fff', 
   },

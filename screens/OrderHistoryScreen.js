@@ -36,7 +36,7 @@ export default function OrderHistoryScreen() {
   };
 
   const handleOrderPress = (order) => {
-    navigation.navigate('OrderDetailScreen', { order });
+    navigation.navigate('Order Details', { order });
   };
 
   const renderOrderItem = ({ item }) => {
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderDate: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   detailsContainer: {
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   total: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#ff6666',
   },
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   noOrdersText: {
-    fontSize: 18,
+    fontSize: 20,
     textAlign: 'center',
     marginTop: 20,
   },

@@ -51,12 +51,6 @@ export default function ProductScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.wishlistButton}
-        onPress={() => navigation.navigate('WishListTab')}
-      >
-        <Text style={styles.wishlistButtonText}>Go to Wishlist</Text>
-      </TouchableOpacity>
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
@@ -82,6 +76,12 @@ export default function ProductScreen({ route }) {
         )}
         contentContainerStyle={styles.flatListContainer}
       />
+      <TouchableOpacity
+        style={styles.wishlistButton}
+        onPress={() => navigation.navigate('WishListTab')}
+      >
+        <Text style={styles.wishlistButtonText}>Go to Wishlist</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 10,
+    justifyContent: 'space-between',
   },
   wishlistButton: {
     backgroundColor: '#ff6666',
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#fff',
     alignItems: 'center',
+    marginRight: 10,
   },
   imageContainer: {
     width: '100%',
@@ -126,17 +128,17 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   image: {
-    width: 150,
+    width: 158,
     height: 150,
     borderRadius: 10,
-    marginRight: 5,
+    marginRight: 10,
   },
   productText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
   },
   wishlistIcon: {
@@ -148,6 +150,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 40,
     height: 40,
+  },
+  wishlistButtonText: {
+    fontSize: 22,
+    color: '#fff',
   },
   iconShadow: {
     position: 'absolute',

@@ -69,8 +69,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: 'bold',
-    color: '#fff', // White text color
+    color: '#fff',
   },
 });

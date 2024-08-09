@@ -14,12 +14,14 @@ export default function WishListScreen() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        if (wishlist && Array.isArray(wishlist)) {
+        if (wishlist && Array.isArray(wishlist) && wishlist.length > 0) {
           const productPromises = wishlist.map(item =>
             fetchProductById(item.categoryId, item.subCategoryId, item.productId)
           );
           const products = await Promise.all(productPromises);
           setProducts(products);
+        } else {
+          setProducts([]);
         }
         setLoading(false);
       } catch (error) {
@@ -40,27 +42,33 @@ export default function WishListScreen() {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.productContainer}>
-            <Image source={{ uri: item.imageUrl[0] }} style={styles.image} />
-            <View style={styles.detailsContainer}>
-              <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item, categoryId: item.categoryId, subCategoryId: item.subCategoryId })}>
-                <Text style={styles.productText}>{item.name}</Text>
+      {products.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyMessage}>Your wishlist is empty</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.productContainer}>
+              <Image source={{ uri: item.imageUrl[0] }} style={styles.image} />
+              <View style={styles.detailsContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProductDetailScreen', { product: item, categoryId: item.categoryId, subCategoryId: item.subCategoryId })}>
+                  <Text style={styles.productText}>{item.name}</Text>
+                </TouchableOpacity>
+                <Text style={styles.productPrice}>${item.price}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => toggleWishlistItem({ categoryId: item.categoryId, subCategoryId: item.subCategoryId, productId: item.id })}
+              >
+                <Icon name="trash" size={26} color="#ff6666" />
               </TouchableOpacity>
-              <Text style={styles.productPrice}>${item.price}</Text>
             </View>
-            <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => toggleWishlistItem({ categoryId: item.categoryId, subCategoryId: item.subCategoryId, productId: item.id })}
-            >
-              <Icon name="trash" size={20} color="#ff6666" />
-            </TouchableOpacity>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -101,15 +109,24 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   productText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
     marginTop: 5,
   },
   removeButton: {
     padding: 5,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyMessage: {
+    fontSize: 18,
+    color: '#888',
   },
 });

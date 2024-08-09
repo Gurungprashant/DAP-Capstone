@@ -33,7 +33,7 @@ export default function SignInScreen({ navigation }) {
         });
         setEmail('');
         setPassword('');
-        navigation.navigate('Main'); // Navigate to the Main tab navigator
+        navigation.navigate('Main'); 
       })
       .catch(error => {
         switch (error.code) {
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 15,
     paddingLeft: 20,
-    paddingRight: 45, // Make room for the icon
+    paddingRight: 45,
     borderRadius: 25,
     backgroundColor: '#fff',
   },

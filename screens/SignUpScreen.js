@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth, storage } from '../firebaseconfig/firebaseConfig'; // Ensure storage is imported
+import { auth, storage } from '../firebaseconfig/firebaseConfig';
 import { showMessage } from 'react-native-flash-message';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';

@@ -4,15 +4,15 @@ import { fetchCartItems, updateCartItemQuantity, deleteCartItem } from '../fireb
 import { auth } from '../firebaseconfig/firebaseConfig';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { useCart } from './CartContext'; // Import useCart hook
+import { useCart } from './CartContext';
 
 export default function CartScreen() {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const user = auth.currentUser;
   const navigation = useNavigation();
-  const isFocused = useIsFocused(); // Hook to detect if the screen is focused
-  const { clearCart } = useCart(); // Get clearCart from context
+  const isFocused = useIsFocused();
+  const { clearCart } = useCart();
 
   useEffect(() => {
     let unsubscribe = null;
@@ -117,7 +117,7 @@ export default function CartScreen() {
         </View>
       </View>
       <TouchableOpacity onPress={() => handleDeleteItem(item.id)} style={styles.deleteButton}>
-        <Icon name="trash" size={24} color="#ff6666" />
+        <Icon name="trash" size={26} color="#ff6666" />
       </TouchableOpacity>
     </View>
   );
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   itemQuantity: {
-    fontSize: 18,
+    fontSize: 20,
     marginHorizontal: 10,
   },
   deleteButton: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   button: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   emptyCartContainer: {
