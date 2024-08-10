@@ -24,46 +24,53 @@ export default function SignUpScreen({ navigation }) {
   };
 
   const handleSignUp = async () => {
+  
     if (password !== confirmPassword) {
       showError('Passwords do not match.');
       return;
     }
-
+  
     if (email === '' || password === '' || fullName === '') {
       showError('Please fill in all fields.');
       return;
     }
 
+    if (password.length < 6) {
+      showError('Password should be at least 6 characters long.');
+      return;
+    }
+    
+  
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       let profileImageUrl = defaultProfilePictureUrl;
-
+  
       if (selectedImage) {
         profileImageUrl = await uploadProfileImage(user.uid, selectedImage.uri);
       }
-
+  
       await updateProfile(user, { displayName: fullName, photoURL: profileImageUrl });
-
+  
       showMessage({
         message: "Success",
         description: "User account created!",
         type: "success",
       });
-
+  
       setFullName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
       setSelectedImage(null);
-
+  
       navigation.navigate('SignIn');
     } catch (error) {
       showError(error.message);
     }
   };
-
+  
   const uploadProfileImage = async (userId, uri) => {
     const response = await fetch(uri);
     const blob = await response.blob();

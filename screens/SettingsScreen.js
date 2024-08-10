@@ -1,30 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { fetchProfileImage, defaultProfileImageUrl } from '../firebaseconfig/firebaseHelpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const SettingsScreen = () => {
   const [profileImageUri, setProfileImageUri] = useState(defaultProfileImageUrl);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const navigation = useNavigation();
-  const route = useRoute();
   const auth = getAuth();
   const user = auth.currentUser;
 
-  useEffect(() => {
+  const loadUserData = async () => {
     if (user) {
-      fetchProfileImage(user.uid)
-        .then((url) => setProfileImageUri(url))
-        .catch(() => setProfileImageUri(defaultProfileImageUrl));
-
-      setFullName(user.displayName || 'No Name');
-      setEmail(user.email || '');
+      try {
+        const url = await fetchProfileImage(user.uid);
+        setProfileImageUri(url);
+        setFullName(user.displayName || 'No Name');
+        setEmail(user.email || '');
+      } catch {
+        setProfileImageUri(defaultProfileImageUrl);
+      }
     }
-  }, [user, route.params?.updated]);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUserData();
+    }, [user])
+  );
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        loadUserData();
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   const handleSignOut = async () => {
     try {
@@ -56,8 +72,8 @@ const SettingsScreen = () => {
             <Text style={styles.userName}>{fullName}</Text>
             <Text style={styles.userEmail}>{email}</Text>
             <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('Account')}>
-          <Text style={styles.editButtonText}>Edit Account</Text>
-        </TouchableOpacity>
+              <Text style={styles.editButtonText}>Edit Account</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
